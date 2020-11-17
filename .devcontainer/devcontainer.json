@@ -1,0 +1,50 @@
+{
+  "dockerComposeFile": [
+    "docker-compose.yml"
+  ],
+
+  "service": "app",
+
+  "forwardPorts": [
+    8080,
+    5432
+  ],
+
+  "extensions": [
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-pg",
+    "ms-azuretools.vscode-docker",
+    "redhat.java",
+    "vscjava.vscode-maven",
+    "vscjava.vscode-java-debug",
+    "vscjava.vscode-java-dependency",
+    "vscjava.vscode-java-test",
+    "dgileadi.java-decompiler",
+    "redhat.vscode-xml",
+    "redhat.vscode-yaml",
+    "hashicorp.terraform"
+  ],
+
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash",
+
+    "sqltools.connections": [{
+      "name": "Container database",
+      "driver": "PostgreSQL",
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "database": "bookstore",
+      "username": "admin",
+      "askForPassword": true
+    }],
+
+    "java.project.importOnFirstTimeStartup": "automatic",
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.server.launchMode": "Standard",
+    "maven.pomfile.autoUpdateEffectivePOM": true,
+    "telemetry.enableTelemetry": false,
+    "extensions.ignoreRecommendations": true,
+    "java.test.message.hintForSetingDefaultConfig": false
+  }
+}

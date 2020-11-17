@@ -1,0 +1,24 @@
+# Maven
+target
+
+# Custom scripts
+scripts/.env
+
+# IntelliJ Idea project files
+.idea
+*.iml
+
+# Eclipse files
+.settings
+.classpath
+.project
+.factorypath
+
+# MacOS files
+.DS_Store
+
+# Terraform and Terragrunt
+.terraform
+*.generated.tf
+terraform.tfstate
+terraform.tfstate.*

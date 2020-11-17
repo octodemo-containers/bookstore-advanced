@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>500 Error - Oops</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+    <link rel="shortcut icon" href="images/favicon.ico" />
+    <link type="text/css" rel="stylesheet" th:href="@{bootstrap-3.3.6-dist/css/bootstrap.min.css}" />
+
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+        
+        .navbar {
+            margin-bottom: 20px;
+            border-radius: 0;
+        }
+        
+        footer {
+            background-color: #f2f2f2;
+            /* #f2f2f2 #ffffff */
+            padding: 25px;
+        }
+        
+        .emoji {
+            width: 22px;
+            height: 22px;
+        }
+        
+        .thumbnail {
+            border: 0 none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+                <a class="navbar-brand" href="#"><img class="emoji" src="/images/invertocat.svg" th:alt="#{books.title}" /></a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Books</a></li>
+                    <li class="active"><a href="#">Favorites</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#"><span class="glyphicon glyphicon-user"></span> Your Account</a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-shopping-cart"></span> Cart</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-md-10 col-md-offset-1">
+                <img class="media-object" src="/images/deckfailcat.png" height="520" />
+                <div>
+                    <h3>Oops, something went wrong</h3>
+                    <p th:text="${error}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class=" container-fluid text-center navbar-fixed-bottom ">
+        <p>From <img class="emoji " src="/images/octocat.png " /> with <img class="emoji " src="/images/heart.png " /></p>
+        <form class="form-inline ">Get favorites:
+            <input type="email " class="form-control " size="50 " placeholder="Email Address "></input>
+            <button type="button " class="btn btn-danger ">Sign Up</button>
+        </form>
+        <div>
+            <p th:text=" 'Version: ' + ${version} "></p>
+        </div>
+    </footer>
+</body>
+
+</html>

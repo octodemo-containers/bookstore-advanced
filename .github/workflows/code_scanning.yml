@@ -1,0 +1,53 @@
+name: Code scanning
+
+on:
+  push:
+
+jobs:
+  build:
+    name: Perform CodeQL Scanning
+    runs-on: ubuntu-20.04
+    
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      # Utilize caching of the resolved plugins and dependencies from previous Maven builds to provide
+      # faster builds when dependencies have not changed.
+      - name: Cache Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          # Hash on the POM file as that would need to change to modify the dependencies or plugins in use
+          key: mvn-${{ matrix.java }}-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            mvn-${{ matrix.java }}-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+            mvn-${{ matrix.java }}-${{ runner.os }}
+            mvn-${{ matrix.java }}
+            mvn-
+
+      - name: Initialize CodeQL Scanning
+        uses: github/codeql-action/init@v1
+        with:
+          languages: java
+
+      # Disabling Autobuild so we can gain more control over the Maven build process, simple projects can use this step
+      # - name: Autobuild
+      #   uses: github/codeql-action/autobuild@v1
+      #
+      # We are using a custom build step to have greater control over the build process and to disable the container
+      # building profile in the Maven POM that auto activates (as the container is not useful to this workflow)
+      - name: Custom Build Step
+        id: maven_build
+        run: |
+          mvn compile -B -P\!build-container
+        shell: bash
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
+    

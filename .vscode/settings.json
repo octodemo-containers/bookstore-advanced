@@ -1,0 +1,32 @@
+{
+  "java.test.config": [
+    {
+      "name": "Container Database",
+      "env": {
+        "DATABASE_URL": "jdbc:postgresql://localhost:5432/bookstore",
+        "DATABASE_USER": "admin",
+        "DATABASE_PASSWORD": "password",
+      }
+    },
+    {
+      "name": "In:memory Database",
+      "env": {}
+    }
+  ],
+  "files.trimTrailingWhitespace": true,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "[javascript]": {
+    "editor.tabSize": 2
+  },
+  "[json]": {
+    "editor.tabSize": 2
+  },
+  "[yaml]": {
+    "editor.tabSize": 2
+  },
+  "[html]": {
+    "editor.tabSize": 2
+  }
+}

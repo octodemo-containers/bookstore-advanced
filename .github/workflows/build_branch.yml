@@ -1,0 +1,174 @@
+name:  Build Test and Publish - Branch
+
+#
+# This workflow provides a continuous integration workflow for all branches other than the default branch.
+#
+# Upon successful building of the container a commit status will be applied to provide a record of the container
+# that was published from this latest commit.
+#
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  build_parameters:
+    name: Define Build Parameters
+
+    runs-on: ubuntu-20.04
+
+    # We need to share details across job boundaries, expose the step outs at the job level
+    outputs:
+      container_name: ${{ steps.build_params.outputs.container_name }}
+      maven_changelist: ${{ steps.build_params.outputs.maven_changelist }}
+      maven_sha1: ${{ steps.build_params.outputs.maven_sha1 }}
+      github_branch_name: ${{ steps.build_params.outputs.github_ref_branch_name }}
+      github_short_sha: ${{ steps.build_params.outputs.github_short_sha }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Define Build Parameters
+        id: build_params
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const scriptPath = require('path').resolve('./.github/workflows/scripts/build_parameters.js')
+              , buildParameters = require(scriptPath);
+            ;
+            buildParameters(context, core).injectBuildParameters();
+
+
+  build:
+    name: Build
+
+    needs:
+      - build_parameters
+
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['ubuntu-20.04', 'windows-latest']
+        java: [ '11' ]
+
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v2
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+          java-package: jdk
+
+      # Utilize caching of the resolved plugins and dependencies from previous Maven builds to provide
+      # faster builds when dependencies have not changed.
+      - name: Cache Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          # Hash on the POM file as that would need to change to modify the dependencies or plugins in use
+          key: mvn-${{ matrix.java }}-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            mvn-${{ matrix.java }}-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+            mvn-${{ matrix.java }}-${{ runner.os }}
+            mvn-${{ matrix.java }}
+            mvn-
+
+      - name: Build Test and Package
+        id: maven_build
+        run: |
+          mvn package -B \
+            -Dsha1="${{ needs.build_parameters.outputs.maven_sha1 }}" \
+            -Dchangelist="${{ needs.build_parameters.outputs.maven_changelist }}" \
+            -Dgithub.repository="${GITHUB_REPOSITORY}" \
+            -Dcontainer.image.name="${{ needs.build_parameters.outputs.container_name }}"
+        shell: bash 
+
+      - name: Save artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{matrix.os}}-${{matrix.java}}-${{github.sha}}.war
+          path: target/*.war
+          
+      #
+      # Publish the container if we successfully build under Linux
+      #
+      - name: Sign in to GitHub Container Registry
+        if: matrix.os == 'ubuntu-20.04'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
+          registry: ${{ steps.maven_build.outputs.container_registry }}
+      
+      - name: Publish Container image
+        id: container_publish
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          docker push ${{ steps.maven_build.outputs.container_registry }}/${{ steps.maven_build.outputs.container_image }}:${{ steps.maven_build.outputs.container_version }}
+
+      - name: Publish Container as a Status
+        id: container_image_status
+        if: matrix.os == 'ubuntu-20.04'
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          state: success
+          context: Container Image Published - App
+          description: ${{ steps.maven_build.outputs.container_image }}:${{ steps.maven_build.outputs.container_version }}
+
+
+  build_database:
+    name: Build Database Container
+    runs-on: ubuntu-20.04
+
+    needs:
+      - build_parameters
+
+    # We need to share details across job boundaries, expose the step outs at the job level
+    outputs:
+      container_image: ${{ steps.container_details.outputs.container_image }}
+      container_version: ${{ steps.container_details.outputs.container_version }}
+      container_registry: ghcr.io
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Container Details
+        id: container_details
+        run: |
+          echo "::set-output name=container_image::${{ needs.build_parameters.outputs.container_name }}_database"
+          echo "::set-output name=container_version::${{ needs.build_parameters.outputs.github_short_sha }}"
+          echo "::set-output name=container_registry_tag::${{ needs.build_parameters.outputs.container_name }}_database:${{ needs.build_parameters.outputs.github_short_sha }}"
+
+      - name: Build Container
+        working-directory: database
+        run: |
+          docker build . --tag ghcr.io/${{ steps.container_details.outputs.container_registry_tag }}
+        
+      - name: Sign in to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
+          registry: ghcr.io
+      
+      - name: Publish Container image
+        id: container_publish
+        run: |
+          docker push ghcr.io/${{ steps.container_details.outputs.container_registry_tag }}
+
+      - name: Publish DB Container as a Status
+        id: container_image_status
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          state: success
+          context: Container Image Published - Database
+          description: ${{ steps.container_details.outputs.container_registry_tag }}

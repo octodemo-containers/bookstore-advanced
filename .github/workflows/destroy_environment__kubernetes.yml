@@ -1,0 +1,81 @@
+name: Destroy Environment - Kubernetes
+
+on:
+  deployment_status
+
+env:
+  GCP_SDK_VERSION: 312.0.0
+
+jobs:
+  destroy:
+    name: Terraform Destroy
+    if: github.event.deployment_status.state == 'failure'
+    runs-on: ubuntu-20.04
+
+    timeout-minutes: 5
+
+    # Set common Terraform execution environment variables
+    env:
+      TF_VAR_ENVIRONMENT: ${{ github.event.deployment.environment }}
+
+      # These are required as we currently do not default them
+      TF_VAR_app_container: placeholder
+      TF_VAR_app_container_version: placeholder
+      TF_VAR_database_container: placeholder
+      TF_VAR_database_container_version: placeholder
+
+      KUBE_SYSTEM: gke
+
+      GKE_CLUSTER: ${{ secrets.GKE_CLUSTER_NAME }}
+      GKE_ZONE: ${{ secrets.GKE_CLUSTER_LOCATION }}
+
+      # Directory that contains Terraform HCL to run
+      TERRAFORM_WORKING_DIRECTORY: ./terraform/kubernetes
+
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v2
+
+      - name: HashiCorp - Setup Terraform
+        uses: hashicorp/setup-terraform@v1.2.1
+        with:
+          terraform_version: 0.13.5
+          terraform_wrapper: true
+
+      - name: Setup Terragrunt
+        uses: peter-murray/terragrunt-github-action@v1.0.0
+        with:
+          terragrunt_version: 0.25.2
+
+      - name: Sign in to Google Cloud Platform
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: ${{ env.GCP_SDK_VERSION }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_TERRAFORM_SERVICE_ACCOUNT_KEY }}
+          export_default_credentials: true
+
+      - name: Authenticate with Kubernetes Cluster
+        run: |
+          gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
+
+      - name: Terraform - init
+        working-directory: ${{ env.TERRAFORM_WORKING_DIRECTORY }}
+        run: terragrunt init
+
+      - name: Terraform - destroy
+        working-directory: ${{ env.TERRAFORM_WORKING_DIRECTORY }}
+        run: terragrunt destroy -auto-approve
+
+      - name: Remove Environment
+        if: success()
+        uses: actions/github-script@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            console.log(`Removing Deployment after Terraform destroy: ${context.payload.deployment.id}:${context.payload.deployment.environment}`);
+
+            await github.repos.deleteDeployment({
+              ...context.repo,
+              deployment_id: context.payload.deployment.id
+            });

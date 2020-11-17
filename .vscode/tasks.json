@@ -1,0 +1,130 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "verify",
+      "type": "shell",
+      "command": "mvn -B verify",
+      "group": "build"
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "mvn -B test",
+      "group": "test"
+    },
+    {
+      "label": "jettyStart",
+      "type": "shell",
+      "command": "mvn -B jetty:run-forked -Pvscode-debug",
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "pattern": [
+            {
+              "regexp": "\\b\\B",
+              "file": 1,
+              "location": 2,
+              "message": 3
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "^.*Attaching agents:.*",
+            "endsPattern": "^.*Listening for transport dt_socket at address.*"
+          }
+        }
+      ],
+      "promptOnClose": false
+    },
+    {
+      "label": "jettyStop",
+      "type": "shell",
+      "command": "mvn -B jetty:stop -Pvscode-debug",
+      "isBackground": true,
+      "promptOnClose": false
+    },
+    {
+      "label": "demo: code-rating-feature",
+      "type": "shell",
+      "command": "patches/code_star_rating.sh",
+      "group": "none",
+      "isBackground": true,
+      "problemMatcher": [],
+      "promptOnClose": false,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "GCP: Authenticate",
+      "type": "shell",
+      "command": "/usr/share/google-cloud-sdk/bin/gcloud",
+      "args": ["auth", "login"],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GCP: gcloud containers get credentials",
+      "type": "shell",
+      "command": "/usr/share/google-cloud-sdk/bin/gcloud",
+      "args": [
+        "container",
+        "clusters",
+        "get-credentials",
+        "${input:KUBERNETES_CLUSTER_NAME}",
+        "--zone=${input:GCP_COMPUTE_ZONE}",
+        "--project=${input:GCP_PROJECT_ID}"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+  ],
+  "inputs": [
+    {
+      "id": "KUBERNETES_CLUSTER_NAME",
+      "type": "promptString",
+      "description": "The name of the Kubernetes Cluster in GCP Kubernetes Engine to connect to",
+      "default": "bookstore-test"
+    },
+    {
+      "id": "GCP_PROJECT_ID",
+      "type": "promptString",
+      "description": "The id for GCP project",
+      "default": "octodemo-db-291120"
+    },
+    {
+      "id": "GCP_COMPUTE_ZONE",
+      "type": "pickString",
+      "default": "europe-west2-a",
+      "description": "The GCP Compute zone for the resources",
+      "options": [
+        "europe-west2-a",
+        "europe-west2-b",
+        "europe-west2-c",
+        "europe-west1-a"
+      ]
+    }
+  ]
+}

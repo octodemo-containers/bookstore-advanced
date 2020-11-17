@@ -1,0 +1,43 @@
+name: Cleanup PR Environments
+
+#
+# This workflow will remove any existing integration/review environments that have be created as part
+# of a Pull Request Review when the Pull Request is closed.
+#
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  clean:
+    name: Cleanup Review apps
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get temporary token for invalidating deployment(s)
+        id: temp_token
+        uses: peter-murray/workflow-application-token-action@v1
+        with:
+          application_id: ${{ secrets.OCTODEMOBOT_APPLICATION_ID_REPO_AUTOMATION }}
+          application_private_key: ${{ secrets.OCTODEMOBOT_APPLICATION_KEY_REPO_AUTOMATION }}
+          
+      - name: Mark environments as inactive in GitHub
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ steps.temp_token.outputs.token }}
+          script: |
+            const scriptPath = require('path').resolve('./.github/workflows/scripts/deploymentManager.js')
+              , DeploymentManager = require(scriptPath)
+              ;
+
+            const manager = new DeploymentManager(context, github);
+            const ref = context.payload.pull_request.head.ref;
+
+            // This will transition the environments to failure to trigger clean up and then inactivate them due to limitation on the deployment 
+            // status support in Github Actions for 'inactive' status.
+            await manager.deactivateIntegrationDeployments(ref);

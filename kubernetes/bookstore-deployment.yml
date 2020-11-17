@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  generation: 1
+  labels:
+    app: bookstore
+  name: bookstore
+  namespace: default
+  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookstore
+  template:
+    metadata:
+      labels:
+        app: bookstore
+    spec:
+      containers:
+        - name: bookstore
+          image: eu.gcr.io/octodemo-db-291120/octodemo-db-bookstore:1.0.0-peter-murray-patch-1-3264e6e7-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+
+          env:
+            - name: DATABASE_URL
+              value: jdbc:postgresql://bookstore-db:5432/bookstore
+
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: bookstore-db-credentials
+                  key: user
+                                
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bookstore-db-credentials
+                  key: password
+          
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 5

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: bookstore-db
+  labels:
+    name: bookstore-db
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: bookstore-db
+  
+  template:
+    metadata:
+      labels:
+        service: bookstore-db
+
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:12
+          
+          volumeMounts:
+            - name: postgres-volume-mount
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+          
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: bookstore-db-credentials
+                  key: user
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bookstore-db-credentials
+                  key: password
+
+            - name: POSTGRES_DB
+              value: bookstore
+
+      restartPolicy: Always
+
+      volumes:
+        - name: postgres-volume-mount
+          persistentVolumeClaim:
+            claimName: bookstore-db-pvc

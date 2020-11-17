@@ -1,0 +1,101 @@
+name: Container Image Scan
+
+on:
+  registry_package:
+
+  # Trigger container scanning on completion of workflows that build a container
+  workflow_run:
+    workflows:
+      - "Build and Deploy - Production"
+      - "Build Test and Publish - Branch"
+    types:
+      - completed
+
+jobs:
+  get_containers:
+    name: Get Containers
+    runs-on: ubuntu-latest
+
+    outputs:
+      containers: ${{ steps.container_images.outputs.containers }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get Container Images from Commit Status
+        id: container_images
+        uses: actions/github-script@v3
+        with:
+          script: |
+            console.log(JSON.stringify(context, null, 2));
+
+            const statuses = await github.repos.getCombinedStatusForRef({
+                ...context.repo,
+                ref: context.sha
+            }).then(status => {
+                if (status.data.statuses) {
+                    return status.data.statuses.filter(status => {
+                        return status.context.startsWith('Container Image Published');
+                    });
+                }
+                return null;
+            });
+
+            //TODO remove this
+            console.log('----- Combined Statuses');
+            console.log(JSON.stringify(statuses, null, 2));
+
+            const containers = [];
+            if (statuses) {
+                statuses.forEach(status => {
+                  containers.push(status.description);
+                });
+            }
+            
+            if (containers.length > 0) {
+              core.setOutput('containers', JSON.stringify(containers));
+              console.log(`Containers found: ${JSON.stringify(containers)}`);
+            } else {
+              core.setFailed(`No container images associated with commit`);
+            }
+
+
+  container_scan:
+    name: Container Image Scan
+    runs-on: ubuntu-latest
+
+    needs:
+      - get_containers
+
+    strategy:
+      fail-fast: false
+      matrix:
+        container: ${{ fromJSON(needs.get_containers.outputs.containers) }}
+
+    steps:
+      - name: Sign in to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
+          registry: ghcr.io
+      
+      - name: Fetch Container Image
+        run: |
+          docker pull ghcr.io/${{ matrix.container }}
+
+      - name: Scan Container Image
+        uses: anchore/scan-action@v1
+        with:
+          image-reference: ghcr.io/${{ matrix.container }}
+          debug: true
+          acs-report-enable: true
+
+      - name: Display SARIF report data
+        run: cat results.sarif
+
+      - name: Upload Anchore scan SARIF report
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: results.sarif

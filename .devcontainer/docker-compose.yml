@@ -1,0 +1,51 @@
+# Docker Compose File for Application Container and PostgreSQL Database Server
+version: '3.8'
+
+services:
+  app:
+    #image: maven:3.6.3-jdk-11
+    image: ghcr.io/octodemo-db/java-development-container:latest
+    command: sleep infinity
+    #network_mode: service:db
+    network_mode: host
+
+    volumes:
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+
+      - type: bind
+        source: /usr/bin/docker
+        target: /usr/bin/docker
+        
+      - type: bind
+        source: /usr/local/bin/docker-compose
+        target: /usr/local/bin/docker-compose
+
+  db:
+    image: postgres:12
+    restart: unless-stopped
+
+    network_mode: host
+
+    ports:
+     - "5432:5432"
+
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: bookstore
+
+    volumes:
+      - type: bind
+        source: ../database/db-scripts
+        target: /docker-entrypoint-initdb.d
+        consistency: consistent
+
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+        consistency: consistent
+
+volumes:
+  postgres-data:

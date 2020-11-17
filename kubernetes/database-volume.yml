@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: bookstore-db-pvc
+  labels:
+    type: local
+
+spec:
+  volumeName: bookstore-db-pv
+  
+  accessModes:
+    - ReadWriteOnce
+  
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: bookstore-db-pv
+  labels:
+    name: bookstore-db-pv
+
+spec:
+  capacity:
+    storage: 10Gi
+  storageClassName: standard
+  
+  accessModes:
+    - ReadWriteOnce
+
+  gcePersistentDisk:
+    pdName: bookstore-db-data-disk
+    fsType: ext4
+
+---
+
+
+  

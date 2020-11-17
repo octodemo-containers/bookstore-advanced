@@ -1,0 +1,217 @@
+name: Build and Deploy - Production
+
+#
+# This workflow provides a continuous delivery workflow for the default branch on the repository.
+#
+# Upon successful building of the containers a deployment requet will be created triggering the
+# associated workflows for deploying.
+#
+
+on:
+  push:
+    branches:
+      - main
+
+# The name of the `Build (ubuntu 20.04, 11)` build is used as a required context inside the repository on protected
+#  branches configuration. Any changes to the OS or Java version will need to be reflected in repository settings.
+
+jobs:
+  build_parameters:
+    name: Define Build Parameters
+    runs-on: ubuntu-20.04
+
+    # We need to share details across job boundaries, expose the step outs at the job level
+    outputs:
+      container_name: ${{ steps.build_params.outputs.container_name }}
+      maven_changelist: ${{ steps.build_params.outputs.maven_changelist }}
+      maven_sha1: ${{ steps.build_params.outputs.maven_sha1 }}
+      github_branch_name: ${{ steps.build_params.outputs.github_ref_branch_name }}
+      github_short_sha: ${{ steps.build_params.outputs.github_short_sha }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Define Build Parameters
+        id: build_params
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const scriptPath = require('path').resolve('./.github/workflows/scripts/build_parameters.js')
+              , buildParameters = require(scriptPath);
+            ;
+            buildParameters(context, core).injectBuildParameters();
+
+
+  build:
+    name: Build, Test and Package
+    runs-on: ubuntu-20.04
+
+    needs:
+      - build_parameters
+
+    # We need to share details across job boundaries, expose the step outs at the job level
+    outputs:
+      container_registry: ${{ steps.maven_build.outputs.container_registry }}
+      container_image: ${{ steps.maven_build.outputs.container_image }}
+      container_version: ${{ steps.maven_build.outputs.container_version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      # Utilize caching of the resolved plugins and dependencies from previous Maven builds to provide
+      # faster builds when dependencies have not changed.
+      - name: Cache Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          # Hash on the POM file as that would need to change to modify the dependencies or plugins in use
+          key: mvn-${{ matrix.java }}-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            mvn-${{ matrix.java }}-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+            mvn-${{ matrix.java }}-${{ runner.os }}
+            mvn-${{ matrix.java }}
+            mvn-
+      
+      - name: Build Test and Package
+        id: maven_build
+        run: |
+          mvn package -B \
+            -Dsha1="${{ needs.build_parameters.outputs.maven_sha1 }}" \
+            -Dchangelist="${{ needs.build_parameters.outputs.maven_changelist }}" \
+            -Dgithub.repository="${GITHUB_REPOSITORY}" \
+            -Dcontainer.image.name="${{ needs.build_parameters.outputs.container_name }}"
+        shell: bash
+
+      # Publish the container if we successfully build under Linux
+      - name: Sign in to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
+          registry: ghcr.io
+      
+      - name: Publish Container image
+        id: container_publish
+        run: |
+          docker push ${{ steps.maven_build.outputs.container_registry }}/${{ steps.maven_build.outputs.container_image }}:${{ steps.maven_build.outputs.container_version }}
+
+      - name: Publish App Container as a Status
+        id: container_image_status
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          state: success
+          context: Container Image Published - App
+          description: ${{ steps.maven_build.outputs.container_image }}:${{ steps.maven_build.outputs.container_version }}
+      
+
+  build_database:
+    name: Build Database Container
+    runs-on: ubuntu-20.04
+
+    needs:
+      - build_parameters
+
+    # We need to share details across job boundaries, expose the step outs at the job level
+    outputs:
+      container_image: ${{ steps.container_details.outputs.container_image }}
+      container_version: ${{ steps.container_details.outputs.container_version }}
+      container_registry: ghcr.io
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Container Details
+        id: container_details
+        run: |
+          echo "::set-output name=container_image::${{ needs.build_parameters.outputs.container_name }}_database"
+          echo "::set-output name=container_version::${{ needs.build_parameters.outputs.github_short_sha }}"
+          echo "::set-output name=container_registry_tag::${{ needs.build_parameters.outputs.container_name }}_database:${{ needs.build_parameters.outputs.github_short_sha }}"
+
+      - name: Build Container
+        working-directory: database
+        run: |
+          docker build . --tag ghcr.io/${{ steps.container_details.outputs.container_registry_tag }}
+        
+      - name: Sign in to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
+          registry: ghcr.io
+      
+      - name: Publish Container image
+        id: container_publish
+        run: |
+          docker push ghcr.io/${{ steps.container_details.outputs.container_registry_tag }}
+
+      - name: Publish DB Container as a Status
+        id: container_image_status
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          state: success
+          context: Container Image Published - Database
+          description: ${{ steps.container_details.outputs.container_registry_tag }}
+
+
+  deploy:
+    name: Create Deployment
+    runs-on: ubuntu-20.04
+
+    needs:
+      - build_parameters
+      - build
+      - build_database
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get temporary token for creating deployment
+        id: temp_token
+        uses: peter-murray/workflow-application-token-action@v1
+        with:
+          application_id: ${{ secrets.OCTODEMOBOT_APPLICATION_ID_REPO_AUTOMATION }}
+          application_private_key: ${{ secrets.OCTODEMOBOT_APPLICATION_KEY_REPO_AUTOMATION }}
+        
+      - name: Create Deployment
+        id: create_deployment
+        uses: actions/github-script@v3
+        env:
+          container_registry: ${{ needs.build.outputs.container_registry }}
+
+          app_container_image: ${{ needs.build.outputs.container_image }}
+          app_container_version: ${{ needs.build.outputs.container_version }}
+          
+          db_container_image: ${{ needs.build_database.outputs.container_image }}
+          db_container_version: ${{ needs.build_database.outputs.container_version }}
+          
+          sha: ${{ needs.build_parameters.outputs.github_short_sha }}
+        with:
+          github-token: ${{ steps.temp_token.outputs.token }}
+          script: |
+            const scriptPath = require('path').resolve('./.github/workflows/scripts/create_deployment.js')
+              , createDeployment = require(scriptPath);
+            ;
+
+            createDeployment({
+              context: context,
+              github: github,
+              environment: 'prod',
+              containerRegistry: process.env.container_registry,
+              appContainerImage: process.env.app_container_image,
+              appContainerVersion: process.env.app_container_version,
+              databaseContainerImage: process.env.db_container_image,
+              databaseContainerVersion: process.env.db_container_version,
+              sha: process.env.sha,
+              head: context.ref,
+            });

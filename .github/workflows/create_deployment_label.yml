@@ -1,0 +1,93 @@
+name: Create Deployment by label
+
+#
+# A workflow that will respond to particular labels being added to a Pull Request to create an
+# integration environment.
+#
+
+on:
+  pull_request:
+    types:
+      - labeled
+
+jobs:
+  deployment:
+    name: Create deployment
+    runs-on: ubuntu-latest
+    if: |
+      github.event.label.name == 'Deploy to Test' ||
+      github.event.label.name == 'Deploy to Staging' ||
+      github.event.label.name == 'Deploy to QA'
+
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v2
+
+      - name: Acknowledge Request Label from Pull Request
+        id: acknowledge_label
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const scriptPath = require('path').resolve('./.github/workflows/scripts/deploymentLabel.js');
+            const DeploymentLabel = require(scriptPath);
+
+            const deploymentLabel = new DeploymentLabel(context, core, github);
+            await deploymentLabel.acknowledgeDeployLabel();
+            
+
+      - name: Get temporary token for creating deployment
+        id: temp_token
+        uses: peter-murray/workflow-application-token-action@v1
+        with:
+          application_id: ${{ secrets.OCTODEMOBOT_APPLICATION_ID_REPO_AUTOMATION }}
+          application_private_key: ${{ secrets.OCTODEMOBOT_APPLICATION_KEY_REPO_AUTOMATION }}
+      
+      - name: Create Deployment
+        uses: actions/github-script@v3
+        env:
+          container_registry: ghcr.io
+
+          app_container_image: ${{ steps.acknowledge_label.outputs.app_container_image }}
+          app_container_version: ${{ steps.acknowledge_label.outputs.app_container_version }}
+          
+          db_container_image: ${{ steps.acknowledge_label.outputs.database_container_image }}
+          db_container_version: ${{ steps.acknowledge_label.outputs.database_container_version }}
+          
+        with:
+          github-token: ${{ steps.temp_token.outputs.token }}
+          script: |
+            const scriptPath = require('path').resolve('./.github/workflows/scripts/create_deployment.js');
+            const createDeployment = require(scriptPath);
+
+            const LABEL_TO_ENVIRONMENT = {
+              'deploy to qa': 'qa',
+              'deploy to staging': 'staging',
+              'deploy to test': 'test'
+            };
+
+            await createDeployment({
+              context: context,
+              github: github,
+              environment: LABEL_TO_ENVIRONMENT[context.payload.label.name.toLowerCase()],
+              containerRegistry: process.env.container_registry,
+              appContainerImage: process.env.app_container_image,
+              appContainerVersion: process.env.app_container_version,
+              databaseContainerImage: process.env.db_container_image,
+              databaseContainerVersion: process.env.db_container_version,
+              sha: context.sha,
+              head: context.payload.pull_request.head.ref, //Branch name PR created from
+            });
+
+      - name: Report Failure
+        if: failure()
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const commentBody = `Failure in _${context.payload.label.name.toLowerCase()}_, for more details see https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            
+            await github.issues.createComment({
+              ...context.repo,
+              issue_number: context.payload.number,
+              body: commentBody,
+            });

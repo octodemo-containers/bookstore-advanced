@@ -1,0 +1,8 @@
+### Dev files 
+.github/workflows/build_branch.yml      @octodemo-db/developers
+src                                     @octodemo-db/developers
+
+### Production sensitive files
+.github/workflows/build_and_deploy.yml  @octodemo-db/project-leads
+.github/workflows/scripts               @octodemo-db/project-leads
+
