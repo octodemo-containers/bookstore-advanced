@@ -48,7 +48,7 @@ jobs:
       - build_parameters
 
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       fail-fast: false
       matrix:
@@ -87,14 +87,14 @@ jobs:
             -Dchangelist="${{ needs.build_parameters.outputs.maven_changelist }}" \
             -Dgithub.repository="${GITHUB_REPOSITORY}" \
             -Dcontainer.image.name="${{ needs.build_parameters.outputs.container_name }}"
-        shell: bash 
+        shell: bash
 
       - name: Save artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ${{matrix.os}}-${{matrix.java}}-${{github.sha}}.war
           path: target/*.war
-          
+
       #
       # Publish the container if we successfully build under Linux
       #
@@ -105,7 +105,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
           registry: ${{ steps.maven_build.outputs.container_registry }}
-      
+
       - name: Publish Container image
         id: container_publish
         if: matrix.os == 'ubuntu-20.04'
@@ -143,22 +143,22 @@ jobs:
       - name: Container Details
         id: container_details
         run: |
-          echo "::set-output name=container_image::${{ needs.build_parameters.outputs.container_name }}_database"
+          echo "::set-output name=container_image::${{ needs.build_parameters.outputs.container_name }}-database"
           echo "::set-output name=container_version::${{ needs.build_parameters.outputs.github_short_sha }}"
-          echo "::set-output name=container_registry_tag::${{ needs.build_parameters.outputs.container_name }}_database:${{ needs.build_parameters.outputs.github_short_sha }}"
+          echo "::set-output name=container_registry_tag::${{ needs.build_parameters.outputs.container_name }}-database:${{ needs.build_parameters.outputs.github_short_sha }}"
 
       - name: Build Container
         working-directory: database
         run: |
           docker build . --tag ghcr.io/${{ steps.container_details.outputs.container_registry_tag }}
-        
+
       - name: Sign in to GitHub Container Registry
         uses: docker/login-action@v1
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
           registry: ghcr.io
-      
+
       - name: Publish Container image
         id: container_publish
         run: |

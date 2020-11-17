@@ -52,7 +52,7 @@ jobs:
                   containers.push(status.description);
                 });
             }
-            
+
             if (containers.length > 0) {
               core.setOutput('containers', JSON.stringify(containers));
               console.log(`Containers found: ${JSON.stringify(containers)}`);
@@ -80,13 +80,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
           registry: ghcr.io
-      
+
       - name: Fetch Container Image
         run: |
           docker pull ghcr.io/${{ matrix.container }}
 
       - name: Scan Container Image
-        uses: anchore/scan-action@v1
+        uses: anchore/scan-action@v2
         with:
           image-reference: ghcr.io/${{ matrix.container }}
           debug: true

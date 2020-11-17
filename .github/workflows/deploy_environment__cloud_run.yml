@@ -61,7 +61,7 @@ jobs:
           docker tag ${{ needs.deploy_details.outputs.ghcr_container }} $GCR_CONTAINER_IMAGE
 
       - name: Sign in to Google Cloud Platform
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@master
         with:
           version: ${{ env.GCP_SDK_VERSION }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}

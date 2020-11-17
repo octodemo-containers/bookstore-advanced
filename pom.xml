@@ -2,14 +2,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.octodemo-db</groupId>
-    <artifactId>bookstore</artifactId>
+    <groupId>com.github.octodemo-containers</groupId>
+    <artifactId>bookstore-advanced</artifactId>
     <version>${revision}${changelist}${sha1}</version>
     <packaging>war</packaging>
-    
+
     <name>${project.artifactId}</name>
     <description>A Java example project to demonstrate a Java development stack with Maven, GitHub Actions, GitHub Package Registry and Cloud Resources.</description>
-    <url>https://github.com/octodemo-db/bookstore</url>
+    <url>https://github.com/octodemo-containers/bookstore-advanced</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -38,12 +38,12 @@
             Properties for naming, tagging and deploying the Docker image, when running under the correct
             operating system that supports this.
         -->
-        <github.repository>octodemo-db/bookstore</github.repository>
+        <github.repository>octodemo-containers/bookstore-advanced</github.repository>
         <!-- The container registry to publish to -->
         <container.image.registry>ghcr.io</container.image.registry>
-        <container.image.name>octodemo-db/${project.artifactId}</container.image.name>
+        <container.image.name>octodemo-containers/${project.artifactId}</container.image.name>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -87,7 +87,7 @@
             <artifactId>log4j-web</artifactId>
             <version>${log4j.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -101,7 +101,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <resources>
             <resource>
@@ -165,7 +165,7 @@
                     <artifactId>echo-maven-plugin</artifactId>
                     <version>1.2.0</version>
                 </plugin>
-                
+
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
@@ -218,7 +218,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                
+
                 <executions>
                     <execution>
                         <id>prepare-jacoco</id>
@@ -292,7 +292,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    
+
                     <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>

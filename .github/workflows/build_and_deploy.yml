@@ -3,7 +3,7 @@ name: Build and Deploy - Production
 #
 # This workflow provides a continuous delivery workflow for the default branch on the repository.
 #
-# Upon successful building of the containers a deployment requet will be created triggering the
+# Upon successful building of the containers a deployment request will be created triggering the
 # associated workflows for deploying.
 #
 
@@ -12,15 +12,12 @@ on:
     branches:
       - main
 
-# The name of the `Build (ubuntu 20.04, 11)` build is used as a required context inside the repository on protected
-#  branches configuration. Any changes to the OS or Java version will need to be reflected in repository settings.
-
 jobs:
   build_parameters:
     name: Define Build Parameters
     runs-on: ubuntu-20.04
 
-    # We need to share details across job boundaries, expose the step outs at the job level
+    # We need to share details across job boundaries, expose the step outputs at the job level
     outputs:
       container_name: ${{ steps.build_params.outputs.container_name }}
       maven_changelist: ${{ steps.build_params.outputs.maven_changelist }}
@@ -78,7 +75,7 @@ jobs:
             mvn-${{ matrix.java }}-${{ runner.os }}
             mvn-${{ matrix.java }}
             mvn-
-      
+
       - name: Build Test and Package
         id: maven_build
         run: |
@@ -96,7 +93,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
           registry: ghcr.io
-      
+
       - name: Publish Container image
         id: container_publish
         run: |
@@ -110,7 +107,7 @@ jobs:
           state: success
           context: Container Image Published - App
           description: ${{ steps.maven_build.outputs.container_image }}:${{ steps.maven_build.outputs.container_version }}
-      
+
 
   build_database:
     name: Build Database Container
@@ -132,22 +129,22 @@ jobs:
       - name: Container Details
         id: container_details
         run: |
-          echo "::set-output name=container_image::${{ needs.build_parameters.outputs.container_name }}_database"
+          echo "::set-output name=container_image::${{ needs.build_parameters.outputs.container_name }}-database"
           echo "::set-output name=container_version::${{ needs.build_parameters.outputs.github_short_sha }}"
-          echo "::set-output name=container_registry_tag::${{ needs.build_parameters.outputs.container_name }}_database:${{ needs.build_parameters.outputs.github_short_sha }}"
+          echo "::set-output name=container_registry_tag::${{ needs.build_parameters.outputs.container_name }}-database:${{ needs.build_parameters.outputs.github_short_sha }}"
 
       - name: Build Container
         working-directory: database
         run: |
           docker build . --tag ghcr.io/${{ steps.container_details.outputs.container_registry_tag }}
-        
+
       - name: Sign in to GitHub Container Registry
         uses: docker/login-action@v1
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
           registry: ghcr.io
-      
+
       - name: Publish Container image
         id: container_publish
         run: |
@@ -182,7 +179,7 @@ jobs:
         with:
           application_id: ${{ secrets.OCTODEMOBOT_APPLICATION_ID_REPO_AUTOMATION }}
           application_private_key: ${{ secrets.OCTODEMOBOT_APPLICATION_KEY_REPO_AUTOMATION }}
-        
+
       - name: Create Deployment
         id: create_deployment
         uses: actions/github-script@v3
@@ -191,10 +188,10 @@ jobs:
 
           app_container_image: ${{ needs.build.outputs.container_image }}
           app_container_version: ${{ needs.build.outputs.container_version }}
-          
+
           db_container_image: ${{ needs.build_database.outputs.container_image }}
           db_container_version: ${{ needs.build_database.outputs.container_version }}
-          
+
           sha: ${{ needs.build_parameters.outputs.github_short_sha }}
         with:
           github-token: ${{ steps.temp_token.outputs.token }}

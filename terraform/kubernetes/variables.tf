@@ -1,9 +1,9 @@
 variable "app_name" {
-  default = "bookstore"
+  default = "bookstore-advanced"
 }
 
 variable "namespace" {
-  default     = "bookstore-terraform"
+  default     = "bookstore-advanced-terraform"
   description = "Kubernetes namespace for deployment"
 }
 
@@ -15,7 +15,7 @@ variable "container_registry" {
 variable "app_container" {
   type        = string
   description = "The container image name for the application"
-  default     = "octodemo-db/bookstore"
+  default     = "octodemo-containers/bookstore-advanced"
 }
 
 variable "app_container_version" {
@@ -25,7 +25,7 @@ variable "app_container_version" {
 variable "database_container" {
   type        = string
   description = "The comtainer image name for the database"
-  default     = "octodemo-db/bookstore_database"
+  default     = "octodemo-containers/bookstore-advanced-database"
 }
 
 variable "database_container_version" {

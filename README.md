@@ -13,7 +13,7 @@ This is all managed by using GitHub Actions to build, test, scan and deploy to t
 
 * Azure Web Apps
 * Google Cloud Platform Cloud Run
-* Any Kubernetes platform
+* Any Kubernetes platform (AKS, GKE, EKS, plain old Kubernetes on prem...)
 
 The target platform is currently controlled using the GitHub Actions workflows and enabling/disabling the desired supporting deployment platforms.
 

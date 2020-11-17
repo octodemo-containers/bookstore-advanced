@@ -1,6 +1,6 @@
 FROM postgres:12
 
-ARG image_url='https://github.com/octodemo-db/bookstore'
+ARG image_url='https://github.com/octodemo-containers/bookstore-advanced'
 ARG version=0
 ARG changelist=main
 
