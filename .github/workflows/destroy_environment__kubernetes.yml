@@ -48,7 +48,7 @@ jobs:
           terragrunt_version: 0.25.2
 
       - name: Sign in to Google Cloud Platform
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@master
         with:
           version: ${{ env.GCP_SDK_VERSION }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
