@@ -82,7 +82,7 @@ jobs:
       - name: Push GHCR containers to GCR
         run: |
           docker push $GCP_APP_IMAGE
-          docker push $GCR_DB_IMAGE
+          docker push $GCP_DB_IMAGE
 
 
   deploy:
