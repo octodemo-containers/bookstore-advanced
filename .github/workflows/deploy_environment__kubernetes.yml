@@ -62,7 +62,7 @@ jobs:
       - name: Fetch Container Images from GHCR and Tag for GCR
         run: |
           docker pull $GHCR_APP_IMAGE
-          docker tag $GHCR_APP_IMAGE $GCR_APP_IMAGE
+          docker tag $GHCR_APP_IMAGE $GCP_APP_IMAGE
 
           docker pull $GHCR_DB_IMAGE
           docker tag $GHCR_DB_IMAGE $GCP_DB_IMAGE
@@ -91,7 +91,7 @@ jobs:
 
     needs:
       - deploy_details
-      - mirror_containers
+      - mirrot_containers
 
     timeout-minutes: 5
 
