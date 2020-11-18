@@ -65,7 +65,7 @@
       "label": "GCP: Authenticate",
       "type": "shell",
       "command": "/usr/share/google-cloud-sdk/bin/gcloud",
-      "args": ["auth", "login"],
+      "args": ["auth", "login", "--update-adc"],
       "group": "none",
       "presentation": {
         "echo": true,
@@ -100,19 +100,97 @@
       },
       "problemMatcher": []
     },
+    {
+      "label": "Terrform: init",
+      "type": "shell",
+      "command": "terragrunt",
+      "args": [
+        "init",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/terraform/kubernetes"
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Terrform: plan/apply",
+      "type": "shell",
+      "command": "terragrunt",
+      "args": [
+        "${input:terraform_plan_or_apply}",
+        "-var=app_container_version=${input:app_container_version}",
+        "-var=database_container_version=${input:database_container_version}",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/terraform/kubernetes",
+        "env": {
+          "TF_VAR_ENVIRONMENT": "vscode-test",
+          "TF_VAR_container_registry": "eu.gcr.io",
+          "TF_VAR_app_container": "bookstore-advanced",
+          "TF_VAR_database_container": "bookstore-advanced-database",
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Terrform: destroy",
+      "type": "shell",
+      "command": "terragrunt",
+      "args": [
+        "destroy",
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/terraform/kubernetes",
+        "env": {
+          "TF_VAR_ENVIRONMENT": "vscode-test",
+          "TF_VAR_app_container": "bookstore-advanced",
+          "TF_VAR_app_container_version": "placeholder",
+          "TF_VAR_database_container": "bookstore-advanced-database",
+          "TF_VAR_database_container_version": "placeholder",
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
   ],
   "inputs": [
     {
       "id": "KUBERNETES_CLUSTER_NAME",
       "type": "promptString",
       "description": "The name of the Kubernetes Cluster in GCP Kubernetes Engine to connect to",
-      "default": "bookstore-test"
+      "default": "bookstore-demos"
     },
     {
       "id": "GCP_PROJECT_ID",
       "type": "promptString",
       "description": "The id for GCP project",
-      "default": "octodemo-db-291120"
+      "default": "octodemo-containers"
     },
     {
       "id": "GCP_COMPUTE_ZONE",
@@ -124,6 +202,28 @@
         "europe-west2-b",
         "europe-west2-c",
         "europe-west1-a"
+      ]
+    },
+    {
+      "id": "app_container_version",
+      "type": "promptString",
+      "description": "The version for the application container",
+      "default": "1.0.0-e5d921e4"
+    },
+    {
+      "id": "database_container_version",
+      "type": "promptString",
+      "description": "The version for the database container",
+      "default": "e5d921e"
+    },
+    {
+      "id": "terraform_plan_or_apply",
+      "type": "pickString",
+      "default": "plan",
+      "description": "The terraform mode to run in",
+      "options": [
+        "plan",
+        "apply"
       ]
     }
   ]
