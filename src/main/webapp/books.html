@@ -84,13 +84,6 @@
                                             <h4 class="media-heading"><a href="#">[[${book.title}]]</a></h4>
                                             <h5 class="media-heading"> by <a href="#">[[${book.author}]]</a></h5>
                                             <span>Status: </span><span class="text-success"><strong>In Stock</strong></span>
-                                            <!-- Rating shown in stars -->
-                                            <div>
-                                                <span>Rating: </span>
-                                                <span th:each="i : ${#numbers.sequence(1, book.rating)}">
-                                                  <img src="/images/star.png" style="width: 12px; height: 12px;"/>
-                                                </span>
-                                            </div>
                                         </div>
                                     </div>
                                 </td>
