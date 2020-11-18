@@ -141,6 +141,10 @@ jobs:
 
       - name: Authenticate with Kubernetes Cluster
         run: |
+          gcloud info
+          echo "PROJECT is octodemo-containers"
+          echo "ZONE is europe-west2-a"
+          echo "CLUSTER is bookstore-demos"
           gcloud container clusters get-credentials "$GKE_CLUSTER" --zone "$GKE_ZONE"
 
       - name: Terraform - init
