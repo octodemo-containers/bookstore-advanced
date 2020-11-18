@@ -178,6 +178,71 @@
       },
       "problemMatcher": []
     },
+    {
+      "label": "Terrform: unlock",
+      "type": "shell",
+      "command": "terraform",
+      "args": [
+        "force-unlock",
+        "${input:terraform_lock_id}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/terraform/kubernetes"
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GCP: container images",
+      "type": "shell",
+      "command": "/usr/share/google-cloud-sdk/bin/gcloud",
+      "args": [
+        "container",
+        "images",
+        "list",
+        "--project=${input:GCP_PROJECT_ID}",
+        "--repository=${input:GCP_CONTAINER_REPOSITORY}/${input:GCP_PROJECT_ID}"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GCP: container image tags",
+      "type": "shell",
+      "command": "/usr/share/google-cloud-sdk/bin/gcloud",
+      "args": [
+        "container",
+        "images",
+        "list-tags",
+        "${input:GCP_CONTAINER_REPOSITORY}/${input:GCP_PROJECT_ID}/${input:container_name}"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    }
   ],
   "inputs": [
     {
@@ -205,6 +270,16 @@
       ]
     },
     {
+      "id": "GCP_CONTAINER_REPOSITORY",
+      "type": "pickString",
+      "default": "eu.gcr,io",
+      "description": "The GCP Container Repository",
+      "options": [
+        "eu.gcr.io",
+        "gcr.io",
+      ]
+    },
+    {
       "id": "app_container_version",
       "type": "promptString",
       "description": "The version for the application container",
@@ -214,7 +289,7 @@
       "id": "database_container_version",
       "type": "promptString",
       "description": "The version for the database container",
-      "default": "e5d921e"
+      "default": "e5d921e4"
     },
     {
       "id": "terraform_plan_or_apply",
@@ -225,6 +300,17 @@
         "plan",
         "apply"
       ]
+    },
+    {
+      "id": "container_name",
+      "type": "promptString",
+      "default": "bookstore-advanced",
+      "description": "The container image name",
+    },
+    {
+      "id": "terraform_lock_id",
+      "type": "promptString",
+      "description": "The terraform lock id to remove",
     }
   ]
 }
