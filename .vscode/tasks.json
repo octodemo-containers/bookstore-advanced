@@ -1,5 +1,6 @@
 {
   "version": "2.0.0",
+
   "tasks": [
     {
       "label": "verify",
@@ -101,6 +102,26 @@
       "problemMatcher": []
     },
     {
+      "label": "GCP: gcloud auth docker",
+      "type": "shell",
+      "command": "/usr/share/google-cloud-sdk/bin/gcloud",
+      "args": [
+        "auth",
+        "configure-docker",
+        "${input:GCP_CONTAINER_REPOSITORY}"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Terrform: init",
       "type": "shell",
       "command": "terragrunt",
@@ -129,12 +150,12 @@
         "${input:terraform_plan_or_apply}",
         "-var=app_container_version=${input:app_container_version}",
         "-var=database_container_version=${input:database_container_version}",
+        "-var=container_registry=${input:GCP_CONTAINER_REPOSITORY}/${input:GCP_PROJECT_ID}",
       ],
       "options": {
         "cwd": "${workspaceFolder}/terraform/kubernetes",
         "env": {
           "TF_VAR_ENVIRONMENT": "vscode-test",
-          "TF_VAR_container_registry": "eu.gcr.io",
           "TF_VAR_app_container": "bookstore-advanced",
           "TF_VAR_database_container": "bookstore-advanced-database",
         }
@@ -244,6 +265,7 @@
       "problemMatcher": []
     }
   ],
+
   "inputs": [
     {
       "id": "KUBERNETES_CLUSTER_NAME",
@@ -283,13 +305,13 @@
       "id": "app_container_version",
       "type": "promptString",
       "description": "The version for the application container",
-      "default": "1.0.0-e5d921e4"
+      "default": "vscode-latest"
     },
     {
       "id": "database_container_version",
       "type": "promptString",
       "description": "The version for the database container",
-      "default": "e5d921e4"
+      "default": "vscode-latest"
     },
     {
       "id": "terraform_plan_or_apply",
