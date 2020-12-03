@@ -4,9 +4,8 @@ version: '3.8'
 services:
   app:
     #image: maven:3.6.3-jdk-11
-    image: ghcr.io/octodemo-db/java-development-container:latest
+    image: ghcr.io/octodemo/container-java-development:gcp
     command: sleep infinity
-    #network_mode: service:db
     network_mode: host
 
     volumes:
@@ -17,7 +16,7 @@ services:
       - type: bind
         source: /usr/bin/docker
         target: /usr/bin/docker
-        
+
       - type: bind
         source: /usr/local/bin/docker-compose
         target: /usr/local/bin/docker-compose
@@ -25,7 +24,6 @@ services:
   db:
     image: postgres:12
     restart: unless-stopped
-
     network_mode: host
 
     ports:
