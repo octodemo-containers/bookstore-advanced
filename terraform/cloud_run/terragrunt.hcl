@@ -7,7 +7,7 @@ remote_state {
     }
 
     config = {
-        bucket      = "octodemo-db-bookstore"
-        prefix      = "${get_env("TF_VAR_ENVIRONMENT", "integration")}.terraform.state"
+        bucket      = "octodemo-containers-bookstore"
+        prefix      = "cloud-run-${get_env("TF_VAR_ENVIRONMENT", "integration")}.terraform.state"
     }
 }
