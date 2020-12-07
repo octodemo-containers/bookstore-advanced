@@ -32,6 +32,12 @@ public class BookTest {
     }
 
     @Test
+    public void testGetRating() {
+        book.setRating(5);
+        Assert.assertEquals(5, book.getRating());
+    }
+
+    @Test
     public void testGetDetails() {
         String details = book.getDetails();
         Assert.assertNotNull(details);
@@ -42,6 +48,7 @@ public class BookTest {
         book = new Book();
         book.setAuthor("Kurt Vonnegut");
         book.setTitle("Slapstick");
+        book.setRating(1);
     }
 
     @After
