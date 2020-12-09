@@ -63,6 +63,22 @@
       }
     },
     {
+        "label": "Christmas Surprise",
+        "type": "shell",
+        "command": "curl https://raw.githubusercontent.com/sergiolepore/ChristBASHTree/master/tree-EN.sh | bash",
+        "group": "none",
+        "presentation": {
+            "echo": true,
+            "reveal": "always",
+            "focus": true,
+            "panel": "new",
+            "showReuseMessage": true,
+            "clear": false
+      },
+      "problemMatcher": []
+
+    },
+    {
       "label": "GCP: Authenticate",
       "type": "shell",
       "command": "/usr/share/google-cloud-sdk/bin/gcloud",
