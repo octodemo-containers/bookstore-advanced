@@ -21,9 +21,9 @@
             Dependency Versions
         -->
         <!-- This version has a vulnerability in it, upgrade to 9.4.34 to remove it. -->
-        <jetty.version.semver>9.4.31</jetty.version.semver>
+        <jetty.version.semver>9.4.35</jetty.version.semver>
         
-        <jetty.version>${jetty.version.semver}.v20200723</jetty.version>
+        <jetty.version>${jetty.version.semver}.v20201120</jetty.version>
         <log4j.version>2.12.1</log4j.version>
         <slf4j.version>2.0.0-alpha1</slf4j.version>
 
@@ -112,7 +112,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13</version>
+            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
