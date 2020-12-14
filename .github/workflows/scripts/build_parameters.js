@@ -32,6 +32,7 @@ class BuildParameters {
         core.setOutput('github_organization_name', context.repo.owner); //Not used currently
         core.setOutput('github_repository_name', context.repo.repo);
         core.setOutput('github_repository', process.env.GITHUB_REPOSITORY);
+        core.setOutput('container_name', `${context.repo.owner}/${context.repo.repo}`);
     }
 
     mavenVersionOutputs(branchName, shortSha) {
