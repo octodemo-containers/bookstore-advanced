@@ -20,7 +20,10 @@
         <!--
             Dependency Versions
         -->
-        <jetty.version>9.4.31.v20200723</jetty.version>
+        <!-- This version has a vulnerability in it, upgrade to 9.4.34 to remove it. -->
+        <jetty.version.semver>9.4.31</jetty.version.semver>
+        
+        <jetty.version>${jetty.version.semver}.v20200723</jetty.version>
         <log4j.version>2.12.1</log4j.version>
         <slf4j.version>2.0.0-alpha1</slf4j.version>
 
@@ -43,6 +46,18 @@
         <container.image.registry>ghcr.io</container.image.registry>
         <container.image.name>octodemo-containers/${project.artifactId}</container.image.name>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-bom</artifactId>
+                <version>${jetty.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -314,8 +329,7 @@
                                         <image>
                                             <name>${container.image.name.full}</name>
                                             <build>
-                                                <!-- This version has a vulnerability in it, upgrade to 9.4.31-jre11-slim to remove it. -->
-                                                <from>jetty:9.4.27-jre11-slim</from>
+                                                <from>jetty:${jetty.version.semver}-jre11-slim</from>
                                                 <assembly>
                                                     <mode>dir</mode>
                                                     <targetDir>/var/lib/jetty/webapps</targetDir>

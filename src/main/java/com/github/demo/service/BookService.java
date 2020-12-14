@@ -6,8 +6,6 @@ import java.util.List;
 
 public class BookService {
 
-    private static final String API_TOKEN = "AIzaSyAQfxPJiounkhOjODEO5ZieffeBv6yft2Q";
-
     private BookDatabase booksDatabase;
 
     public BookService() throws BookServiceException {
