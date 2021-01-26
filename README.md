@@ -1,4 +1,4 @@
-# GitHub Demo Bookstore 🎄 Edition
+# GitHub Container Demo Bookstore
 
 A Java based Servlet implementation of a bookstore.
 
