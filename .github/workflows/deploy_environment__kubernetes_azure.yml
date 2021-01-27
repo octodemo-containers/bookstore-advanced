@@ -93,6 +93,7 @@ jobs:
 
     needs:
       - deploy_details
+      - mirror-containers
 
     timeout-minutes: 5
 
