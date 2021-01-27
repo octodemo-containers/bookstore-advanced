@@ -7,6 +7,13 @@ env:
   GCP_SDK_VERSION: 312.0.0
 
 jobs:
+  expose:
+    name: Expose Details
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Expose Payloads
+        run: echo ${{ toJSON(github.event) }}
+
   deploy_details:
     name: Define Deployment Details
     if: endsWith(github.event.deployment.environment, 'gcp')
