@@ -3,17 +3,7 @@ name: Deploy Environment - Azure Kubernetes
 on:
   deployment:
 
-env:
-  GCP_SDK_VERSION: 312.0.0
-
 jobs:
-  expose:
-    name: Expose Details
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Expose Payloads
-        run: echo "${{ toJSON(github.event) }}"
-
   deploy_details:
     name: Define Deployment Details
     if: endsWith(github.event.deployment.environment, 'azure')
@@ -93,7 +83,7 @@ jobs:
 
     needs:
       - deploy_details
-      - mirror-containers
+      - mirror_containers
 
     timeout-minutes: 5
 
@@ -133,7 +123,7 @@ jobs:
       - name: Sign in to Google Cloud Platform for Terraform Backend
         uses: google-github-actions/setup-gcloud@v0.2.0
         with:
-          version: ${{ env.GCP_SDK_VERSION }}
+          version: 312.0.0
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_TERRAFORM_SERVICE_ACCOUNT_KEY }}
           export_default_credentials: true

@@ -4,13 +4,10 @@ name: Destroy Environment - Azure Kubernetes
 on:
   deployment_status
 
-env:
-  GCP_SDK_VERSION: 312.0.0
-
 jobs:
   destroy:
     name: Terraform Destroy
-    if: github.event.deployment_status.state == 'failure'
+    if: github.event.deployment_status.state == 'failure' && contains(github.event.deployment.environment, 'azure')
     runs-on: ubuntu-20.04
 
     timeout-minutes: 5
@@ -45,10 +42,10 @@ jobs:
         with:
           terragrunt_version: 0.25.2
 
-      - name: Sign in to Google Cloud Platform
+      - name: Sign in to Google Cloud Platform for Terraform Backend
         uses: google-github-actions/setup-gcloud@v0.2.0
         with:
-          version: ${{ env.GCP_SDK_VERSION }}
+          version: 312.0.0
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_TERRAFORM_SERVICE_ACCOUNT_KEY }}
           export_default_credentials: true

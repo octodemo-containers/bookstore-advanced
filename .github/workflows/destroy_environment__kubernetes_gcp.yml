@@ -9,7 +9,7 @@ env:
 jobs:
   destroy:
     name: Terraform Destroy
-    if: github.event.deployment_status.state == 'failure'
+    if: github.event.deployment_status.state == 'failure' && contains(github.event.deployment.environment, 'gcp')
     runs-on: ubuntu-20.04
 
     timeout-minutes: 5
