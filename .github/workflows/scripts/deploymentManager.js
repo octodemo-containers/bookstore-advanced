@@ -6,9 +6,8 @@ module.exports = class DeploymentManager {
   }
 
   async activateDeployment(deploymentId, environmentUrl) {
-    const github = this.github
-      , context = this.context
-      ;
+    const github = this.github,
+      context = this.context;
 
     const deployment = await github.repos.getDeployment({
       ...context.repo,
@@ -23,7 +22,9 @@ module.exports = class DeploymentManager {
       deployment_id: deployment.id,
       state: 'success',
       environment_url: environmentUrl,
-      mediaType: { previews: ['ant-man'] }
+      mediaType: {
+        previews: ['ant-man', 'flash']
+      }
     });
 
     // Get all deployments for the specified environment
@@ -31,7 +32,7 @@ module.exports = class DeploymentManager {
 
     // Inactivate any previous environments
     const promises = [];
-    
+
     allDeployments.forEach(deployment => {
       // If this a previous deployment, ensure it is inactive.
       if (deployment.id !== deploymentId) {
@@ -43,9 +44,8 @@ module.exports = class DeploymentManager {
   }
 
   async deactivateIntegrationDeployments(ref) {
-    const context = this.context
-      , github = this.github
-      ;
+    const context = this.context,
+      github = this.github;
 
     //TODO might need to contend with pagination, but in practice this should not be an issue as we are limiting on ref
     return github.repos.listDeployments({
@@ -73,23 +73,23 @@ module.exports = class DeploymentManager {
                 if (currentState !== 'failure') {
                   console.log(`Deployment: ${deployment.id}:${deployment.environment} transitioning to failure`);
                   return github.repos.createDeploymentStatus({
-                      ...context.repo,
-                      mediaType: {previews: ["flash", "ant-man"]},
-                      deployment_id: deployment.id,
-                      state: 'failure',
-                      description: 'Pull Request Merged/Closed, triggering removal'
+                    ...context.repo,
+                    mediaType: { previews: ["flash", "ant-man"] },
+                    deployment_id: deployment.id,
+                    state: 'failure',
+                    description: 'Pull Request Merged/Closed, triggering removal'
                   }).then(() => {
                     console.log(`Deployment: ${deployment.id}:${deployment.environment} transitioning to inactive`);
                     return github.repos.createDeploymentStatus({
-                        ...context.repo,
-                        mediaType: {previews: ["flash", "ant-man"]},
-                        deployment_id: deployment.id,
-                        state: 'inactive',
-                        description: 'Pull Request Merged/Closed, inactivating'
+                      ...context.repo,
+                      mediaType: { previews: ["flash", "ant-man"] },
+                      deployment_id: deployment.id,
+                      state: 'inactive',
+                      description: 'Pull Request Merged/Closed, inactivating'
                     });
                   });
                 }
-              }   
+              }
             }
           })
         );
@@ -109,13 +109,12 @@ module.exports = class DeploymentManager {
   }
 
   async inactivateDeployment(deploymentId) {
-    const context = this.context
-      , github = this.github
-      ;
+    const context = this.context,
+      github = this.github;
 
     //TODO this may not be necessary as we should not have a long list of deployment statuses, we could just use listDeploymentStatuses()
     return github.paginate('GET /repos/:owner/:repo/deployments/:deployment_id/statuses', {
-      ...context.repo, 
+      ...context.repo,
       deployment_id: deploymentId
     }).then(statuses => {
       if (statuses && statuses.length > 0) {
