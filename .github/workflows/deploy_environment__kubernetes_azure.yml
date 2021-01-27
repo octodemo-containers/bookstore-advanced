@@ -92,7 +92,9 @@ jobs:
       TF_VAR_ENVIRONMENT: ${{ github.event.deployment.environment }}
 
       # Point to the ACR registry instead of GitHub Container Registry
-      TF_VAR_container_registry: octodemorg.azurecr.io
+      #TF_VAR_container_registry: octodemorg.azurecr.io
+      # Currently have a permissions issue as we do not have AD access permissions for the service accounts so cannot bind
+      # AKS to ACR until we get someone with permissions to do this for us. For now we will pull from GHCR.
 
       TF_VAR_app_container: ${{ needs.deploy_details.outputs.app_container_image }}
       TF_VAR_app_container_version: ${{ needs.deploy_details.outputs.app_container_version }}
