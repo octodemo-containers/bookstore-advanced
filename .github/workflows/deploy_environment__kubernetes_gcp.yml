@@ -2,7 +2,8 @@ name: Deploy Environment - GCP Kubernetes
 
 on:
   deployment:
-    types: created
+    types:
+      - created
 
 env:
   GCP_SDK_VERSION: 312.0.0
