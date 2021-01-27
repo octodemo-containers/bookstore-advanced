@@ -61,6 +61,9 @@ jobs:
       # Directory that contains Terraform HCL to run
       TERRAFORM_WORKING_DIRECTORY: ./terraform/kubernetes
 
+    environment:
+      name: ${{ github.event.deployment.environment }}
+
     steps:
       - name: Checkout Sources
         uses: actions/checkout@v2

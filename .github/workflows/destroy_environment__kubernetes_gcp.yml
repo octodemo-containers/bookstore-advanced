@@ -1,4 +1,4 @@
-name: Destroy Environment - Kubernetes
+name: Destroy Environment - GCP Kubernetes
 
 on:
   deployment_status
@@ -31,6 +31,9 @@ jobs:
 
       # Directory that contains Terraform HCL to run
       TERRAFORM_WORKING_DIRECTORY: ./terraform/kubernetes
+
+    environment:
+      name: ${{ github.event.deployment.environment }}
 
     steps:
       - name: Echo github
