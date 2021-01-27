@@ -214,5 +214,5 @@ jobs:
             }
 
             // Request deployments for Azure and GCP
-            createDeployment(Object.assign({environment: prod-azure}, payload));
-            createDeployment(Object.assign({environment: prod-gcp}, payload));
+            createDeployment(Object.assign({environment: 'prod-azure'}, payload));
+            createDeployment(Object.assign({environment: 'prod-gcp'}, payload));
