@@ -43,6 +43,49 @@ jobs:
             ;
             await deploymentPayload(context, core, github).unpackAndStart();
 
+  mirror_containers:
+    name: Mirror Containers to Azure Container Registry
+
+    runs-on: ubuntu-20.04
+
+    needs:
+      - deploy_details
+
+    env:
+      GHCR_APP_IMAGE: ghcr.io/${{ needs.deploy_details.outputs.app_container_image }}:${{ needs.deploy_details.outputs.app_container_version }}
+      ACR_APP_IMAGE: octodemorg.azurecr.io/${{ needs.deploy_details.outputs.app_container_image }}:${{ needs.deploy_details.outputs.app_container_version }}
+
+      GHCR_DB_IMAGE: ghcr.io/${{ needs.deploy_details.outputs.database_container_image }}:${{ needs.deploy_details.outputs.database_container_version }}
+      ACR_DB_IMAGE: octodemorg.azurecr.io/${{ needs.deploy_details.outputs.database_container_image }}:${{ needs.deploy_details.outputs.database_container_version }}
+
+    steps:
+      - name: Sign in to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.OCTODEMOBOT_GHPR_TOKEN }}
+          registry: ghcr.io
+
+      - name: Fetch Container Images from GHCR and Tag for ACR
+        run: |
+          docker pull $GHCR_APP_IMAGE
+          docker tag $GHCR_APP_IMAGE $ACR_APP_IMAGE
+
+          docker pull $GHCR_DB_IMAGE
+          docker tag $GHCR_DB_IMAGE $ACR_DB_IMAGE
+
+      - name: Login to ACR
+        uses: docker/login-action@v1
+        with:
+          registry: octodemorg.azurecr.io
+          username: ${{ secrets.ACR_CLIENT_ID }}
+          password: ${{ secrets.ACR_CLIENT_SECRET }}
+
+      - name: Push GHCR containers to ACR
+        run: |
+          docker push $ACR_APP_IMAGE
+          docker push $ACR_DB_IMAGE
+
 
   deploy:
     name: Terraform Deploy
@@ -56,6 +99,9 @@ jobs:
     # Set common Terraform execution environment variables
     env:
       TF_VAR_ENVIRONMENT: ${{ github.event.deployment.environment }}
+
+      # Point to the ACR registry instead of GitHub Container Registry
+      TF_VAR_container_registry: octodemorg.azurecr.io
 
       TF_VAR_app_container: ${{ needs.deploy_details.outputs.app_container_image }}
       TF_VAR_app_container_version: ${{ needs.deploy_details.outputs.app_container_version }}
@@ -83,7 +129,7 @@ jobs:
         with:
           terragrunt_version: 0.25.2
 
-      - name: Sign in to Google Cloud Platform
+      - name: Sign in to Google Cloud Platform for Terraform Backend
         uses: google-github-actions/setup-gcloud@v0.2.0
         with:
           version: ${{ env.GCP_SDK_VERSION }}
