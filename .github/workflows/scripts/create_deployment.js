@@ -2,23 +2,21 @@
 // Creates a Deployment using the provided data
 //
 
-module.exports = async (payload) => {
+module.exports = async(payload) => {
 
-    const environment = validateParameter(payload, 'environment')
-        , context = validateParameter(payload, 'context')
-        , github = validateParameter(payload, 'github')
-        , containerRegistry = validateParameter(payload, 'containerRegistry')
-        , appContainerImage = validateParameter(payload, 'appContainerImage')
-        , appContainerVersion = validateParameter(payload, 'appContainerVersion')
-        , databaseContainerImage = validateParameter(payload, 'databaseContainerImage')
-        , databaseContainerVersion = validateParameter(payload, 'databaseContainerVersion')
-        , sha = validateParameter(payload, 'sha')
-        , head = validateParameter(payload, 'head')
-    ;
+    const environment = validateParameter(payload, 'environment'),
+        context = validateParameter(payload, 'context'),
+        github = validateParameter(payload, 'github'),
+        containerRegistry = validateParameter(payload, 'containerRegistry'),
+        appContainerImage = validateParameter(payload, 'appContainerImage'),
+        appContainerVersion = validateParameter(payload, 'appContainerVersion'),
+        databaseContainerImage = validateParameter(payload, 'databaseContainerImage'),
+        databaseContainerVersion = validateParameter(payload, 'databaseContainerVersion'),
+        sha = validateParameter(payload, 'sha'),
+        head = validateParameter(payload, 'head');
 
-    const isProduction = environment === 'prod'
-        , deploymentEnvironment = isProduction ? environment : `${environment}-${head}`
-    ;
+    const isProduction = /^prod-.*/.test(environment),
+        deploymentEnvironment = isProduction ? environment : `${environment}-${head}-gcp`;
 
     // A deployment payload for passing information of the components for the deployment
     const deploymentPayload = {

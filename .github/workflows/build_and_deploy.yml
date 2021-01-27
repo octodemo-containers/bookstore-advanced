@@ -210,7 +210,6 @@ jobs:
               databaseContainerVersion: process.env.db_container_version,
               sha: process.env.sha,
               head: context.ref,
-              production_environment: true,
             }
 
             // Request deployments for Azure and GCP

@@ -69,8 +69,7 @@ jobs:
             await createDeployment({
               context: context,
               github: github,
-              environment: LABEL_TO_ENVIRONMENT[context.payload.label.name.toLowerCase()] + '-gcp',
-              production_environment: false,
+              environment: LABEL_TO_ENVIRONMENT[context.payload.label.name.toLowerCase()],
               containerRegistry: process.env.container_registry,
               appContainerImage: process.env.app_container_image,
               appContainerVersion: process.env.app_container_version,
