@@ -445,6 +445,7 @@
                             <jvmArgs>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Dlog4j2.debug=${log4j-debug}</jvmArgs>
                             <stopPort>8081</stopPort>
                             <stopKey>jetty-vscode</stopKey>
+                            <!-- These are provided in the VS Code tasks.json file now -->
                             <!-- <env>
                                 <DATABASE_URL>jdbc:postgresql://localhost:5432/bookstore</DATABASE_URL>
                                 <DATABASE_USER>admin</DATABASE_USER>
