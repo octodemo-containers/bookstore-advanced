@@ -29,7 +29,7 @@ jobs:
       - name: HashiCorp - Setup Terraform
         uses: hashicorp/setup-terraform@v1.2.1
         with:
-          terraform_version: 0.13.5
+          terraform_version: 0.14.5
           terraform_wrapper: true
 
       - name: Setup Terragrunt
@@ -38,7 +38,7 @@ jobs:
           terragrunt_version: 0.25.2
 
       - name: Sign in to Google Cloud Platform
-        uses: google-github-actions/setup-gcloud@master
+        uses: google-github-actions/setup-gcloud@v0.2.0
         with:
           version: ${{ env.GCP_SDK_VERSION }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
