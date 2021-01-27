@@ -9,6 +9,8 @@ module.exports = class DeploymentManager {
     const github = this.github,
       context = this.context;
 
+    console.log(`Deployment url: '${environmentUrl}'`);
+
     const deployment = await github.repos.getDeployment({
       ...context.repo,
       deployment_id: deploymentId
@@ -21,7 +23,7 @@ module.exports = class DeploymentManager {
       ...context.repo,
       deployment_id: deployment.id,
       state: 'success',
-      environment_url: environmentUrl,
+      environment_url: environmentUrl.trim(),
       mediaType: {
         previews: ['ant-man', 'flash']
       }
