@@ -12,8 +12,8 @@ resource "kubernetes_service" "app" {
     type = "LoadBalancer"
 
     port {
-      name        = "https"
-      port        = 443
+      name        = "http"
+      port        = 80
       protocol    = "TCP"
       target_port = var.app_port
     }
