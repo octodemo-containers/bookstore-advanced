@@ -200,10 +200,9 @@ jobs:
               , createDeployment = require(scriptPath);
             ;
 
-            createDeployment({
+            const payload = {
               context: context,
               github: github,
-              environment: 'prod',
               containerRegistry: process.env.container_registry,
               appContainerImage: process.env.app_container_image,
               appContainerVersion: process.env.app_container_version,
@@ -211,4 +210,9 @@ jobs:
               databaseContainerVersion: process.env.db_container_version,
               sha: process.env.sha,
               head: context.ref,
-            });
+              production_environment: true,
+            }
+
+            // Request deployments for Azure and GCP
+            createDeployment(Object.assign({environment: prod-azure}, payload));
+            createDeployment(Object.assign({environment: prod-gcp}, payload));

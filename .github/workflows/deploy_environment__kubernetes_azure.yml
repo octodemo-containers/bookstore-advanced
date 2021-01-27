@@ -9,7 +9,7 @@ env:
 jobs:
   deploy_details:
     name: Define Deployment Details
-
+    if: endsWith(github.event.deployment.environment, 'azure')
     runs-on: ubuntu-20.04
 
     outputs:
@@ -27,7 +27,7 @@ jobs:
 
       - name: Extract Deployment Details and Report Deployment in Progress
         id: deployment_data
-        uses: actions/github-script@v2
+        uses: actions/github-script@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |

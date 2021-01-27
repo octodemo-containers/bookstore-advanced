@@ -24,7 +24,7 @@ jobs:
 
       - name: Extract Deployment Details and Report Deployment in Progress
         id: deployment_data
-        uses: actions/github-script@v2
+        uses: actions/github-script@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
