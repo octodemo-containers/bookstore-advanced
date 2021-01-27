@@ -163,7 +163,7 @@ jobs:
       - name: Get Website URL from Terrafom State
         id: terraform_output
         working-directory: ${{ env.TERRAFORM_WORKING_DIRECTORY }}
-        run: terraform output website_url
+        run: terraform output -json website_url
 
       - name: Report Success
         uses: actions/github-script@v3
