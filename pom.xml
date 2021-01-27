@@ -20,10 +20,9 @@
         <!--
             Dependency Versions
         -->
-        <!-- This version has a vulnerability in it, upgrade to 9.4.34 to remove it. -->
-        <jetty.version.semver>9.4.31</jetty.version.semver>
+        <jetty.version.semver>10.0.0</jetty.version.semver>
         
-        <jetty.version>${jetty.version.semver}.v20200723</jetty.version>
+        <jetty.version>${jetty.version.semver}</jetty.version>
         <log4j.version>2.12.1</log4j.version>
         <slf4j.version>2.0.0-alpha1</slf4j.version>
 
@@ -61,16 +60,16 @@
 
     <dependencies>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>4.0.4</version>
             <scope>provided</scope>
-        </dependency>
+          </dependency>
 
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
-            <version>3.0.11.RELEASE</version>
+            <version>3.0.12.RELEASE</version>
         </dependency>
 
         <dependency>
@@ -172,7 +171,7 @@
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.33.0</version>
+                    <version>0.34.1</version>
                 </plugin>
 
                 <plugin>
@@ -339,13 +338,12 @@
                                                     <!-- <org.opencontainer.image.created></org.opencontainer.image.created> -->
                                                     <org.opencontainers.image.authors>GitHub Solutions Engineering</org.opencontainers.image.authors>
                                                     <org.opencontainers.image.url>${project.url}</org.opencontainers.image.url>
-                                                    <org.opencontainers.image.documentation>https://github.com/octodemo-db/bookstore/README.md</org.opencontainers.image.documentation>
+                                                    <org.opencontainers.image.documentation>https://github.com/octodemo-containers/bookstore-advanced/README.md</org.opencontainers.image.documentation>
                                                     <org.opencontainers.image.source>${project.url}</org.opencontainers.image.source>
                                                     <org.opencontainers.image.version>${project.version}</org.opencontainers.image.version>
                                                     <org.opencontainers.image.revision>${changelist}</org.opencontainers.image.revision>
                                                     <org.opencontainers.image.vendor>GitHub</org.opencontainers.image.vendor>
                                                     <org.opencontainers.image.licenses>MIT</org.opencontainers.image.licenses>
-                                                    <!-- <org.opencontainers.image.ref.name>${project.groupId}:${project.artifactId}</org.opencontainers.image.ref.name> -->
                                                     <org.opencontainers.image.title>GitHub Solutions Engineering Bookstore</org.opencontainers.image.title>
                                                     <org.opencontainers.image.description>${project.description}</org.opencontainers.image.description>
                                                 </labels>
@@ -421,6 +419,15 @@
         </profile>
 
         <profile>
+            <!--
+                Profile for forking the jetty server and providing a debugger attachment to running process.
+
+                This is primarily used within the GitHub Codespace environment to be able to run and debug the application, deployed into a
+                Jetty Server that can update based on local file changes.
+
+                Due to this being a background process, it will register a stop port of 8081 whereby it will listen for the termination message and password
+                to shutdown the server once debugging is completed.
+            -->
             <id>vscode-debug</id>
             <build>
                 <plugins>
@@ -428,15 +435,16 @@
                         <groupId>org.eclipse.jetty</groupId>
                         <artifactId>jetty-maven-plugin</artifactId>
                         <configuration>
-                            <jvmArgs>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005 -Dlog4j2.debug=${log4j-debug}</jvmArgs>
+                            <deployMode>FORK</deployMode>
+                            <jvmArgs>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -Dlog4j2.debug=${log4j-debug}</jvmArgs>
                             <stopPort>8081</stopPort>
                             <stopKey>jetty-vscode</stopKey>
-                            <env>
+                            <!-- <env>
                                 <DATABASE_URL>jdbc:postgresql://localhost:5432/bookstore</DATABASE_URL>
                                 <DATABASE_USER>admin</DATABASE_USER>
                                 <DATABASE_PASSWORD>password</DATABASE_PASSWORD>
                                 <DATABASE_RETRIES>1</DATABASE_RETRIES>
-                            </env>
+                            </env> -->
                         </configuration>
                     </plugin>
                 </plugins>
