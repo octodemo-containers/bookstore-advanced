@@ -50,7 +50,7 @@ module.exports = class DeploymentManager {
     // Terraform has started putting out quoted strings now, so we have to clean them up
     let result = envUrl.trim();
 
-    const regex = /^"().*)"$/;
+    const regex = /^"(.*)"$/;
     if (regex.test(result)) {
       result = regex.match(result)[1]
     }
