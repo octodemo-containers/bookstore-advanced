@@ -52,7 +52,7 @@ module.exports = class DeploymentManager {
 
     const regex = /^"(.*)"$/;
     if (regex.test(result)) {
-      result = regex.match(result)[1]
+      result = regex.exec(result)[1]
     }
     return result;
   }
