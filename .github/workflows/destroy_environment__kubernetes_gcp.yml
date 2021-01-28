@@ -33,9 +33,6 @@ jobs:
       TERRAFORM_WORKING_DIRECTORY: ./terraform/kubernetes
 
     steps:
-      - name: Echo github
-        run: echo ${{ toJSON(github.event) }}
-
       - name: Checkout Sources
         uses: actions/checkout@v2
 
