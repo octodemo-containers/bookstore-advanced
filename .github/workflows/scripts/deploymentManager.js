@@ -7,9 +7,10 @@ module.exports = class DeploymentManager {
 
   async activateDeployment(deploymentId, environmentUrl) {
     const github = this.github,
-      context = this.context;
+      context = this.context,
+      url = this.cleanEnvironmentUrl(environmentUrl);
 
-    console.log(`Deployment url: '${environmentUrl}'`);
+    console.log(`Deployed Environment url: '${url}'`);
 
     const deployment = await github.repos.getDeployment({
       ...context.repo,
@@ -23,7 +24,7 @@ module.exports = class DeploymentManager {
       ...context.repo,
       deployment_id: deployment.id,
       state: 'success',
-      environment_url: environmentUrl.trim(),
+      environment_url: url,
       mediaType: {
         previews: ['ant-man', 'flash']
       }
@@ -43,6 +44,17 @@ module.exports = class DeploymentManager {
     });
 
     return Promise.all(promises);
+  }
+
+  cleanEnvironmentUrl(envUrl) {
+    // Terraform has started putting out quoted strings now, so we have to clean them up
+    let result = envUrl.trim();
+
+    const regex = /^"().*)"$/;
+    if (regex.test(result)) {
+      result = regex.match(result)[1]
+    }
+    return result;
   }
 
   async deactivateIntegrationDeployments(ref) {
