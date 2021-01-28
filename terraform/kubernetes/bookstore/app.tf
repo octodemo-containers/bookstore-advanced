@@ -47,8 +47,8 @@ resource "kubernetes_deployment" "app" {
 
       spec {
         container {
-          name  = "bookstore"
-          image = "${var.container_registry}/${var.app_container.image}:${var.app_container.version}"
+          name              = "bookstore"
+          image             = "${var.container_registry}/${var.app_container.image}:${var.app_container.version}"
           image_pull_policy = "IfNotPresent"
 
           env {
@@ -77,7 +77,7 @@ resource "kubernetes_deployment" "app" {
           }
 
           env {
-            name = "DATABASE_RETRIES"
+            name  = "DATABASE_RETRIES"
             value = "20"
           }
 
@@ -91,6 +91,17 @@ resource "kubernetes_deployment" "app" {
               memory = "250Mi"
             }
           }
+
+          liveness_probe {
+            http_get {
+              path = "/status"
+              port = var.app_port
+            }
+            initial_delay_seconds = 10
+            period_seconds        = 5
+            success_threshold     = 1
+            timeout_seconds       = 5
+          }
         }
 
         restart_policy                   = "Always"
@@ -101,12 +112,12 @@ resource "kubernetes_deployment" "app" {
   depends_on = [kubernetes_service.database]
 }
 
-output app_service_ip {
-  value = tostring(kubernetes_service.app.load_balancer_ingress.0.ip)
+output "app_service_ip" {
+  value       = tostring(kubernetes_service.app.load_balancer_ingress.0.ip)
   description = "Application Service IP Address"
 }
 
-output app_service_name {
-  value = kubernetes_service.app.metadata.0.name
+output "app_service_name" {
+  value       = kubernetes_service.app.metadata.0.name
   description = "Application Service name"
 }
