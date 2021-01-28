@@ -1,292 +1,331 @@
 {
   "version": "2.0.0",
-
   "tasks": [
     {
-        "label": "verify",
-        "type": "shell",
-        "command": "mvn -B verify",
-        "group": "build"
+      "label": "verify",
+      "type": "shell",
+      "command": "mvn -B verify",
+      "group": "build"
     },
     {
-        "label": "test",
-        "type": "shell",
-        "command": "mvn -B test",
-        "group": "test"
+      "label": "test",
+      "type": "shell",
+      "command": "mvn -B test",
+      "group": "test"
     },
     {
-        "label": "jettyStart",
-        "type": "shell",
-        "command": "mvn -B jetty:run -Pvscode-debug",
-        "isBackground": true,
-        "options": {
-            "env": {
-                "DATABASE_URL":"jdbc:postgresql://localhost:5432/bookstore",
-                "DATABASE_USER":"admin",
-                "DATABASE_PASSWORD":"password",
-                "DATABASE_RETRIES":"1"
-            }
-        },
-        "problemMatcher": [
-            {
-                "pattern": [
-                    {
-                        "regexp": "\\b\\B",
-                        "file": 1,
-                        "location": 2,
-                        "message": 3
-                    }
-                ],
-                "background": {
-                    "activeOnStart": false,
-                    "beginsPattern": "^.*Forked process starting.*",
-                    "endsPattern": "^.*Listening for transport dt_socket at address.*"
-                }
-            }
-        ],
-        "promptOnClose": false
-    },
-    {
-        "label": "jettyStop",
-        "type": "shell",
-        "command": "mvn -B jetty:stop -Pvscode-debug",
-        "isBackground": false,
-        "promptOnClose": false,
-        "presentation": {
-            "echo": true,
-            "reveal": "silent",
-            "focus": false,
-            "panel": "dedicated",
-            "showReuseMessage": false,
-            "clear": true
-        },
-        "problemMatcher": []
-    },
-    {
-        "label": "demo: code-rating-feature",
-        "type": "shell",
-        "command": "patches/code_star_rating.sh",
-        "group": "none",
-        "isBackground": true,
-        "problemMatcher": [],
-        "promptOnClose": false,
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": false,
-            "panel": "shared",
-            "showReuseMessage": false,
-            "clear": false
+      "label": "jettyStart",
+      "type": "shell",
+      "command": "mvn -B jetty:run -Pvscode-debug",
+      "isBackground": true,
+      "options": {
+        "env": {
+          "DATABASE_URL": "jdbc:postgresql://localhost:5432/bookstore",
+          "DATABASE_USER": "admin",
+          "DATABASE_PASSWORD": "password",
+          "DATABASE_RETRIES": "1"
         }
-    },
-    {
-        "label": "GCP: Authenticate",
-        "type": "shell",
-        "command": "/usr/share/google-cloud-sdk/bin/gcloud",
-        "args": [
-            "auth",
-            "login",
-            "--update-adc"
-        ],
-        "group": "none",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": true,
-            "panel": "new",
-            "showReuseMessage": true,
-            "clear": false
-        },
-        "problemMatcher": []
-    },
-    {
-        "label": "GCP: gcloud containers get credentials",
-        "type": "shell",
-        "command": "/usr/share/google-cloud-sdk/bin/gcloud",
-        "args": [
-            "container",
-            "clusters",
-            "get-credentials",
-            "${input:KUBERNETES_CLUSTER_NAME}",
-            "--zone=${input:GCP_COMPUTE_ZONE}",
-            "--project=${input:GCP_PROJECT_ID}"
-        ],
-        "group": "none",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": true,
-            "panel": "new",
-            "showReuseMessage": true,
-            "clear": false
-        },
-        "problemMatcher": []
-    },
-    {
-        "label": "GCP: gcloud auth docker",
-        "type": "shell",
-        "command": "/usr/share/google-cloud-sdk/bin/gcloud",
-        "args": [
-            "auth",
-            "configure-docker",
-            "${input:GCP_CONTAINER_REPOSITORY}"
-        ],
-        "group": "none",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": true,
-            "panel": "new",
-            "showReuseMessage": true,
-            "clear": false
-        },
-        "problemMatcher": []
-    },
-    {
-        "label": "Terrform: init",
-        "type": "shell",
-        "command": "terragrunt",
-        "args": [
-            "init"
-        ],
-        "options": {
-            "cwd": "${workspaceFolder}/terraform/kubernetes"
-        },
-        "group": "none",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": true,
-            "panel": "new",
-            "showReuseMessage": false,
-            "clear": true
-        },
-        "problemMatcher": []
-    },
-    {
-        "label": "Terrform: plan/apply",
-        "type": "shell",
-        "command": "terragrunt",
-        "args": [
-            "${input:terraform_plan_or_apply}",
-            "-var=app_container_version=${input:app_container_version}",
-            "-var=database_container_version=${input:database_container_version}",
-            "-var=container_registry=${input:GCP_CONTAINER_REPOSITORY}/${input:GCP_PROJECT_ID}"
-        ],
-        "options": {
-            "cwd": "${workspaceFolder}/terraform/kubernetes",
-            "env": {
-                "TF_VAR_ENVIRONMENT": "vscode-test",
-                "TF_VAR_app_container": "bookstore-advanced",
-                "TF_VAR_database_container": "bookstore-advanced-database"
+      },
+      "problemMatcher": [
+        {
+          "pattern": [
+            {
+              "regexp": "\\b\\B",
+              "file": 1,
+              "location": 2,
+              "message": 3
             }
-        },
-        "group": "none",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": true,
-            "panel": "new",
-            "showReuseMessage": false,
-            "clear": true
-        },
-        "problemMatcher": []
+          ],
+          "background": {
+            "activeOnStart": false,
+            "beginsPattern": "^.*Forked process starting.*",
+            "endsPattern": "^.*Listening for transport dt_socket at address.*"
+          }
+        }
+      ],
+      "promptOnClose": false
     },
     {
-        "label": "Terrform: destroy",
-        "type": "shell",
-        "command": "terragrunt",
-        "args": [
-            "destroy"
-        ],
-        "options": {
-            "cwd": "${workspaceFolder}/terraform/kubernetes",
-            "env": {
-                "TF_VAR_ENVIRONMENT": "vscode-test",
-                "TF_VAR_app_container": "bookstore-advanced",
-                "TF_VAR_app_container_version": "placeholder",
-                "TF_VAR_database_container": "bookstore-advanced-database",
-                "TF_VAR_database_container_version": "placeholder"
-            }
-        },
-        "group": "none",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": true,
-            "panel": "new",
-            "showReuseMessage": false,
-            "clear": true
-        },
-        "problemMatcher": []
+      "label": "jettyStop",
+      "type": "shell",
+      "command": "mvn -B jetty:stop -Pvscode-debug",
+      "isBackground": false,
+      "promptOnClose": false,
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
     },
     {
-        "label": "Terrform: unlock",
-        "type": "shell",
-        "command": "terraform",
-        "args": [
-            "force-unlock",
-            "${input:terraform_lock_id}"
-        ],
-        "options": {
-            "cwd": "${workspaceFolder}/terraform/kubernetes"
-        },
-        "group": "none",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": true,
-            "panel": "new",
-            "showReuseMessage": false,
-            "clear": true
-        },
-        "problemMatcher": []
+      "label": "demo: code-rating-feature",
+      "type": "shell",
+      "command": "patches/code_star_rating.sh",
+      "group": "none",
+      "isBackground": true,
+      "problemMatcher": [],
+      "promptOnClose": false,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": false
+      }
     },
     {
-        "label": "GCP: container images",
-        "type": "shell",
-        "command": "/usr/share/google-cloud-sdk/bin/gcloud",
-        "args": [
-            "container",
-            "images",
-            "list",
-            "--project=${input:GCP_PROJECT_ID}",
-            "--repository=${input:GCP_CONTAINER_REPOSITORY}/${input:GCP_PROJECT_ID}"
-        ],
-        "group": "none",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": true,
-            "panel": "new",
-            "showReuseMessage": false,
-            "clear": true
-        },
-        "problemMatcher": []
+      "label": "Azure: login",
+      "type": "shell",
+      "command": "/usr/bin/az",
+      "args": [
+        "login"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
     },
     {
-        "label": "GCP: container image tags",
-        "type": "shell",
-        "command": "/usr/share/google-cloud-sdk/bin/gcloud",
-        "args": [
-            "container",
-            "images",
-            "list-tags",
-            "${input:GCP_CONTAINER_REPOSITORY}/${input:GCP_PROJECT_ID}/${input:container_name}"
-        ],
-        "group": "none",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": true,
-            "panel": "new",
-            "showReuseMessage": false,
-            "clear": true
-        },
-        "problemMatcher": []
+      "label": "Azure: AKS get-credentials",
+      "type": "shell",
+      "command": "/usr/bin/az",
+      "args": [
+        "aks",
+        "get-credentials",
+        "--resource-group",
+        "${input:AZURE_RESOURCE_GROUP}",
+        "--name",
+        "${input:AZURE_KUBERNETES_CLUSTER_NAME}"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GCP: Authenticate",
+      "type": "shell",
+      "command": "/usr/share/google-cloud-sdk/bin/gcloud",
+      "args": [
+        "auth",
+        "login",
+        "--update-adc"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GCP: gcloud containers get credentials",
+      "type": "shell",
+      "command": "/usr/share/google-cloud-sdk/bin/gcloud",
+      "args": [
+        "container",
+        "clusters",
+        "get-credentials",
+        "${input:KUBERNETES_CLUSTER_NAME}",
+        "--zone=${input:GCP_COMPUTE_ZONE}",
+        "--project=${input:GCP_PROJECT_ID}"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GCP: gcloud auth docker",
+      "type": "shell",
+      "command": "/usr/share/google-cloud-sdk/bin/gcloud",
+      "args": [
+        "auth",
+        "configure-docker",
+        "${input:GCP_CONTAINER_REPOSITORY}"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Terrform: init",
+      "type": "shell",
+      "command": "terragrunt",
+      "args": [
+        "init"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/terraform/kubernetes"
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Terrform: plan/apply",
+      "type": "shell",
+      "command": "terragrunt",
+      "args": [
+        "${input:terraform_plan_or_apply}",
+        "-var=app_container_version=${input:app_container_version}",
+        "-var=database_container_version=${input:database_container_version}",
+        "-var=container_registry=${input:GCP_CONTAINER_REPOSITORY}/${input:GCP_PROJECT_ID}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/terraform/kubernetes",
+        "env": {
+          "TF_VAR_ENVIRONMENT": "vscode-test",
+          "TF_VAR_app_container": "bookstore-advanced",
+          "TF_VAR_database_container": "bookstore-advanced-database"
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Terrform: destroy",
+      "type": "shell",
+      "command": "terragrunt",
+      "args": [
+        "destroy"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/terraform/kubernetes",
+        "env": {
+          "TF_VAR_ENVIRONMENT": "vscode-test",
+          "TF_VAR_app_container": "bookstore-advanced",
+          "TF_VAR_app_container_version": "placeholder",
+          "TF_VAR_database_container": "bookstore-advanced-database",
+          "TF_VAR_database_container_version": "placeholder"
+        }
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Terrform: unlock",
+      "type": "shell",
+      "command": "terraform",
+      "args": [
+        "force-unlock",
+        "${input:terraform_lock_id}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/terraform/kubernetes"
+      },
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GCP: container images",
+      "type": "shell",
+      "command": "/usr/share/google-cloud-sdk/bin/gcloud",
+      "args": [
+        "container",
+        "images",
+        "list",
+        "--project=${input:GCP_PROJECT_ID}",
+        "--repository=${input:GCP_CONTAINER_REPOSITORY}/${input:GCP_PROJECT_ID}"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GCP: container image tags",
+      "type": "shell",
+      "command": "/usr/share/google-cloud-sdk/bin/gcloud",
+      "args": [
+        "container",
+        "images",
+        "list-tags",
+        "${input:GCP_CONTAINER_REPOSITORY}/${input:GCP_PROJECT_ID}/${input:container_name}"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
     }
-],
-
+  ],
   "inputs": [
     {
       "id": "KUBERNETES_CLUSTER_NAME",
@@ -354,6 +393,18 @@
       "id": "terraform_lock_id",
       "type": "promptString",
       "description": "The terraform lock id to remove",
+    },
+    {
+      "id": "AZURE_KUBERNETES_CLUSTER_NAME",
+      "type": "promptString",
+      "description": "The name of the Kubernetes Cluster in Azure Kubernetes Servcie to connect to",
+      "default": "octodemo-containers"
+    },
+    {
+      "id": "AZURE_RESOURCE_GROUP",
+      "type": "promptString",
+      "description": "The name of the Kubernetes Cluster in Azure Kubernetes Servcie to connect to",
+      "default": "octodemo-demo-rg"
     }
   ]
 }
