@@ -397,13 +397,13 @@
     {
       "id": "AZURE_KUBERNETES_CLUSTER_NAME",
       "type": "promptString",
-      "description": "The name of the Kubernetes Cluster in Azure Kubernetes Servcie to connect to",
+      "description": "The name of the Kubernetes Cluster in Azure Kubernetes Service",
       "default": "octodemo-containers"
     },
     {
       "id": "AZURE_RESOURCE_GROUP",
       "type": "promptString",
-      "description": "The name of the Kubernetes Cluster in Azure Kubernetes Servcie to connect to",
+      "description": "The Azure Resource Group",
       "default": "octodemo-demo-rg"
     }
   ]
