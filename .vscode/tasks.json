@@ -18,14 +18,6 @@
       "type": "shell",
       "command": "mvn -B jetty:run -Pvscode-debug",
       "isBackground": true,
-      "options": {
-        "env": {
-          "DATABASE_URL": "jdbc:postgresql://localhost:5432/bookstore",
-          "DATABASE_USER": "admin",
-          "DATABASE_PASSWORD": "password",
-          "DATABASE_RETRIES": "1"
-        }
-      },
       "problemMatcher": [
         {
           "pattern": [
