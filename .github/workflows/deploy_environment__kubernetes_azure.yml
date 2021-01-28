@@ -43,10 +43,10 @@ jobs:
 
     env:
       GHCR_APP_IMAGE: ghcr.io/${{ needs.deploy_details.outputs.app_container_image }}:${{ needs.deploy_details.outputs.app_container_version }}
-      ACR_APP_IMAGE: octodemorg.azurecr.io/${{ needs.deploy_details.outputs.app_container_image }}:${{ needs.deploy_details.outputs.app_container_version }}
+      ACR_APP_IMAGE: octodemocontainers.azurecr.io/${{ needs.deploy_details.outputs.app_container_image }}:${{ needs.deploy_details.outputs.app_container_version }}
 
       GHCR_DB_IMAGE: ghcr.io/${{ needs.deploy_details.outputs.database_container_image }}:${{ needs.deploy_details.outputs.database_container_version }}
-      ACR_DB_IMAGE: octodemorg.azurecr.io/${{ needs.deploy_details.outputs.database_container_image }}:${{ needs.deploy_details.outputs.database_container_version }}
+      ACR_DB_IMAGE: octodemocontainers.azurecr.io/${{ needs.deploy_details.outputs.database_container_image }}:${{ needs.deploy_details.outputs.database_container_version }}
 
     steps:
       - name: Sign in to GitHub Container Registry
@@ -67,7 +67,7 @@ jobs:
       - name: Login to ACR
         uses: docker/login-action@v1
         with:
-          registry: octodemorg.azurecr.io
+          registry: octodemocontainers.azurecr.io
           username: ${{ secrets.ACR_CLIENT_ID }}
           password: ${{ secrets.ACR_CLIENT_SECRET }}
 
@@ -92,7 +92,7 @@ jobs:
       TF_VAR_ENVIRONMENT: ${{ github.event.deployment.environment }}
 
       # Point to the ACR registry instead of GitHub Container Registry
-      #TF_VAR_container_registry: octodemorg.azurecr.io
+      #TF_VAR_container_registry: octodemocontainers.azurecr.io
       # Currently have a permissions issue as we do not have AD access permissions for the service accounts so cannot bind
       # AKS to ACR until we get someone with permissions to do this for us. For now we will pull from GHCR.
 
