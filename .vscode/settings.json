@@ -5,7 +5,7 @@
       "env": {
         "DATABASE_URL": "jdbc:postgresql://localhost:5432/bookstore",
         "DATABASE_USER": "admin",
-        "DATABASE_PASSWORD": "password",
+        "DATABASE_PASSWORD": "password"
       }
     },
     {
@@ -28,6 +28,12 @@
   },
   "[html]": {
     "editor.tabSize": 2
-},
-"java.configuration.updateBuildConfiguration": "disabled"
+  },
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.factorypath": true
+  }
 }

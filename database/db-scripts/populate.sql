@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS books (
 );
 
 INSERT INTO books (
-    title, 
-    author, 
+    title,
+    author,
     image,
     rating
 ) VALUES (
@@ -20,13 +20,61 @@ INSERT INTO books (
 ) ON CONFLICT DO NOTHING;
 
 INSERT INTO books (
-    title, 
-    author, 
+    title,
+    author,
     image,
     rating
 ) VALUES (
     'The Lean Startup: How Constant Innovation Creates Radically Successful Businesses',
     'Eric Ries',
     'lean.jpg',
+    3
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO books (
+    title,
+    author,
+    image,
+    rating
+) VALUES (
+    'Crossing the Chasm',
+    'Geoffrey A. Moore',
+    'chasm.jpg',
+    3
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO books (
+    title,
+    author,
+    image,
+    rating
+) VALUES (
+    'The Pragmatic Programmer: From Journeyman to Master',
+    'David Thomas',
+    'pragmatic.jpg',
+    3
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO books (
+    title,
+    author,
+    image,
+    rating
+) VALUES (
+    'The Mythical Man-Month: Essays on Software Engineering',
+    'Frederick P. Brooks Jr.',
+    'month.jpg',
+    3
+) ON CONFLICT DO NOTHING;
+
+INSERT INTO books (
+    title,
+    author,
+    image,
+    rating
+) VALUES (
+    'Don''t Make Me Think, Revisited: A Common Sense Approach to Web Usability',
+    'Steve Krug',
+    'think.jpg',
     3
 ) ON CONFLICT DO NOTHING;
