@@ -116,7 +116,7 @@ public class BookDatabaseImpl implements BookDatabase {
 
         try {
             stmt = connection.createStatement();
-            String query = "SELECT * FROM books WHERE title='%" + name + "%'";
+            String query = "SELECT * FROM books WHERE title LIKE '%" + name + "%'";
 
             ResultSet results = stmt.executeQuery(query);
 
