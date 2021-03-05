@@ -10,7 +10,7 @@ current_branch=`git branch`
 echo "Current Branch: $current_branch"
 
 echo "Creating new feature branch: $feature_branch_name"
-git checkout -b feature-book-star-rating
+git checkout -b $feature_branch_name
 
 echo "Applying code changes..."
 pushd $DIR/..
