@@ -70,14 +70,19 @@ public class BookServlet extends HttpServlet {
         ctx.setVariable("version", versionProperties.getProperty("version"));
 
         try {
-            List<Book> books;
+            List<Book> books = bookService.getBooks();
 
             String search = req.getParameter("search");
-            if (search == null) {
-                books = bookService.getBooks();
-            } else {
+            if (search != null) {
                 books = bookService.searchBooks(search);
             }
+
+            // String search = req.getParameter("search");
+            // if (search == null) {
+            //     books = bookService.getBooks();
+            // } else {
+            //     books = bookService.searchBooks(search);
+            // }
             ctx.setVariable("books", books);
 
             resp.setHeader("Content-Type", "text/html; charset=UTF-8");
