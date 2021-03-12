@@ -78,7 +78,7 @@ module.exports = class DeploymentManager {
           }).then(statuses => {
             if (statuses.data) {
               // The first state is the most current state for the deployment
-              const currentState = statuses.data[0];
+              const currentState = statuses.data[0].state;
 
               // Ignore deployments that are already inactive
               if (currentState !== 'inactive') {
