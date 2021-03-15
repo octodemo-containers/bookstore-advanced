@@ -92,8 +92,7 @@ public class BookDatabaseImpl implements BookDatabase {
                 Book book = new Book(
                     rs.getString("author"),
                     rs.getString("title"),
-                    rs.getString("image"),
-                    rs.getInt("rating")
+                    rs.getString("image")
                 );
                 books.add(book);
             }
@@ -124,8 +123,7 @@ public class BookDatabaseImpl implements BookDatabase {
                 Book book = new Book(
                     results.getString("author"),
                     results.getString("title"),
-                    results.getString("image"),
-                    results.getInt("rating")
+                    results.getString("image")
                 );
                 books.add(book);
             }
@@ -171,7 +169,6 @@ public class BookDatabaseImpl implements BookDatabase {
                     ps.setString(1, book.getTitle());
                     ps.setString(2, book.getAuthor());
                     ps.setString(3, book.getCover());
-                    ps.setInt(4, book.getRating());
                     ps.execute();
                 }
                 logger.info("Database populated.");
