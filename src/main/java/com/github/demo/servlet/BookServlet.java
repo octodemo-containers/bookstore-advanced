@@ -71,10 +71,16 @@ public class BookServlet extends HttpServlet {
 
         try {
             List<Book> books = bookService.getBooks();
-            ctx.setVariable("books", books);                   
-            
+
+            String searchString = req.getParameter("search");
+            if (searchString != null) {
+                books = bookService.searchBooks(searchString);
+            }
+
+            ctx.setVariable("books", books);
+
             resp.setHeader("Content-Type", "text/html; charset=UTF-8");
-            engine.process("books", ctx, resp.getWriter());           
+            engine.process("books", ctx, resp.getWriter());
         } catch (BookServiceException e) {
             ctx.setVariable("error", e.getMessage());
             resp.setHeader("Content-Type", "text/html; charset=UTF-8");
